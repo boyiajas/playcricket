@@ -1,0 +1,5 @@
+{
+  "name": "CricBook Pro",
+  "description": "A premier cricket facility management system combining booking management, member CRM, and bulk communication channels (WhatsApp, SMS, Email) for match reminders and tournament announcements.",
+  "requestFramePermissions": []
+}
