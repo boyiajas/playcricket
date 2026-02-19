@@ -1,29 +1,78 @@
-# PlayCricket – Vue + Laravel
+# CricBook Pro - Cricket Facility Management Platform
 
-The React/Vite prototype has been migrated to a Vue 3 front-end with a Laravel-ready API skeleton.
+CricBook Pro is a comprehensive web application for managing cricket facility bookings, member registrations, and coaching clinics. It features a modern Vue 3 frontend and a Laravel backend API skeleton.
 
-## Front-end (Vue 3 + Vite)
-1. Install dependencies: `npm install`
-2. Add a `.env` file with your Gemini key: `VITE_GEMINI_API_KEY=your_key`
-3. Run the dev server: `npm run dev`
+## Features
 
-## Back-end (Laravel API skeleton)
-- The `backend/` folder contains controllers, routes, and config data mirroring the Vue mock data.
-- Create a fresh Laravel app (Laravel 10/11) and copy the contents of `backend/` into the matching paths of that app:
-  - `config/appdata.php`
-  - `routes/api.php` (merge with your routes)
-  - `app/Http/Controllers/*.php`
-- Suggested quick start inside a new `laravel-app` directory:
-  ```
-  composer create-project laravel/laravel laravel-app
-  cd laravel-app
-  cp -R ../backend/config/appdata.php config/
-  cp -R ../backend/app/Http/Controllers app/Http/
-  cp ../backend/routes/api.php routes/api.php
-  php artisan serve
-  ```
-- Replace the in-memory arrays with migrations/models when ready, then point the Vue app to `http://127.0.0.1:8000/api`.
+### Frontend (Vue 3 + Vite)
 
-## Notes
-- UI lives under `src/` with Tailwind via CDN (no build-time Tailwind config needed).
-- Data is currently mock-driven; switch the Vue services to call the Laravel endpoints once the API is running.
+- **Landing Page**: A visually rich, responsive landing page with:
+    - Sticky Hero Slider with navigation dots.
+    - Latest News & Video sections.
+    - Partner logos and Testimonials.
+    - Split-layout Motivation Banner.
+    - Comprehensive Footer with quick links and contact info.
+- **Authentication System**:
+    - **Full-Page Login**: Secure login screen with role simulation (Admin, Manager, Staff, Member).
+    - **Registration Page**: User-friendly sign-up form linked seamlessly with the login flow.
+    - **Backgrounds**: Immersive cricket stadium backgrounds with optimal text readability.
+- **Dashboard**: Role-based access to booking management, member lists, and reports.
+- **Tech Stack**: Vue 3, Vite, Tailwind CSS, Axios.
+
+### Backend (Laravel API Skeleton)
+
+- **API Routes**: Pre-configured routes for authentication, bookings, and members.
+- **Controllers**: Skeleton controllers mirroring the frontend mock data.
+- **Database**: Migration files for bookings, users, and payments.
+
+## Setup Instructions
+
+### 1. Frontend Setup
+
+```bash
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+Visit `http://localhost:5173` to view the application.
+
+### 2. Backend Setup (Laravel)
+
+If setting up the actual Laravel backend:
+
+```bash
+# Create a new Laravel project (if not already set up)
+composer create-project laravel/laravel laravel-app
+
+# Copy backend files from this repo to your Laravel app
+cp -r backend/laravel-app/app/Http/Controllers laravel-app/app/Http/
+cp -r backend/laravel-app/routes/api.php laravel-app/routes/
+cp -r backend/laravel-app/database/migrations laravel-app/database/
+
+# Configure .env
+cp .env.example .env
+php artisan key:generate
+
+# Run migrations
+php artisan migrate
+
+# Start the Laravel server
+php artisan serve
+```
+
+Ensure the Vue app's API base URL points to your running Laravel instance.
+
+## Project Structure
+
+- `src/components/`: Vue components (LandingPage, Login, Register, Dashboard, etc.).
+- `src/services/`: API service wrappers and mock data.
+- `backend/`: Laravel backend files (Controllers, Routes, Config).
+
+## Latest Updates
+
+- **Enhanced UI**: Upgraded hero section slider, footer redesign, and motivation banner layout.
+- **Improved UX**: Converted login/registration into dedicated full-page routes for a better user experience.
+- **Reliable Assets**: Switched to high-quality Unsplash image sources for consistent visuals.

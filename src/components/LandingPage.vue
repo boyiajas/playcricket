@@ -38,9 +38,9 @@ const prevSlide = () => {
 setInterval(nextSlide, 5000);
 
 const news = [
-    { id: 1, title: 'Summer Camp Registration Open', date: 'Feb 20, 2026', image: 'https://placehold.co/600x400/10b981/ffffff?text=Camp' },
-    { id: 2, title: 'New Bowling Machine Installed', date: 'Feb 15, 2026', image: 'https://placehold.co/600x400/0f172a/ffffff?text=Machine' },
-    { id: 3, title: 'U13 League Winners Announced', date: 'Feb 10, 2026', image: 'https://placehold.co/600x400/f59e0b/ffffff?text=Winners' },
+    { id: 1, title: 'Summer Camp Registration Open', date: 'Feb 20, 2026', image: 'https://picsum.photos/seed/news1/800/600' },
+    { id: 2, title: 'New Bowling Machine Installed', date: 'Feb 15, 2026', image: 'https://picsum.photos/seed/news2/800/600' },
+    { id: 3, title: 'U13 League Winners Announced', date: 'Feb 10, 2026', image: 'https://picsum.photos/seed/news3/800/600' },
 ];
 
 const videos = [
@@ -123,29 +123,86 @@ const submitContact = () => {
        <!-- Slider Controls -->
        <button @click="prevSlide" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur text-white transition-all">◀</button>
        <button @click="nextSlide" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur text-white transition-all">▶</button>
+
+       <!-- Slider Dots -->
+       <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-3">
+           <button 
+               v-for="(slide, index) in slides" 
+               :key="'dot-' + slide.id"
+               @click="currentSlide = index"
+               class="w-3 h-3 rounded-full transition-all duration-300 shadow-sm"
+               :class="currentSlide === index ? 'bg-emerald-500 scale-125' : 'bg-white/50 hover:bg-white/80'"
+               :aria-label="'Go to slide ' + (index + 1)"
+           ></button>
+       </div>
     </section>
 
     <!-- Latest News -->
-    <section id="news" class="py-20 bg-slate-50">
-       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="text-center mb-16">
-              <h2 class="text-4xl font-bold text-slate-900 mb-4">Latest News From The Pitch</h2>
-              <div class="w-24 h-1 bg-emerald-500 mx-auto rounded-full"></div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-             <div v-for="item in news" :key="item.id" class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                 <div class="h-48 overflow-hidden">
-                    <img :src="item.image" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" :alt="item.title">
-                 </div>
-                 <div class="p-6">
-                    <span class="text-emerald-600 text-sm font-bold uppercase tracking-wider">{{ item.date }}</span>
-                    <h3 class="text-xl font-bold mt-2 text-slate-800">{{ item.title }}</h3>
-                    <p class="mt-3 text-slate-600 text-sm">Ideally this would be a snippet of the news article content to entice reading more...</p>
-                    <a href="#" class="inline-block mt-4 text-emerald-600 font-bold hover:text-emerald-700">Read More →</a>
-                 </div>
-             </div>
-          </div>
-       </div>
+    <section id="news" class="relative py-20 bg-slate-50 overflow-hidden">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+            <img 
+                src="https://picsum.photos/seed/cricket/1920/1080?grayscale" 
+                class="w-full h-full object-cover"
+                alt="Cricket Background Pattern"
+            />
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+           <div class="text-center mb-16">
+               <h2 class="text-4xl font-bold text-slate-900 mb-4">Latest News From The Pitch</h2>
+               <div class="w-24 h-1 bg-emerald-500 mx-auto rounded-full"></div>
+           </div>
+           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div v-for="item in news" :key="item.id" class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
+                  <div class="h-48 overflow-hidden">
+                     <img :src="item.image" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" :alt="item.title">
+                  </div>
+                  <div class="p-6">
+                     <span class="text-emerald-600 text-sm font-bold uppercase tracking-wider">{{ item.date }}</span>
+                     <h3 class="text-xl font-bold mt-2 text-slate-800">{{ item.title }}</h3>
+                     <p class="mt-3 text-slate-600 text-sm">Ideally this would be a snippet of the news article content to entice reading more...</p>
+                     <a href="#" class="inline-block mt-4 text-emerald-600 font-bold hover:text-emerald-700">Read More →</a>
+                  </div>
+              </div>
+           </div>
+        </div>
+    </section>
+
+    <!-- Motivation Banner -->
+    <section class="relative py-32 bg-emerald-900 overflow-hidden">
+        <div class="absolute inset-0">
+             <img src="https://picsum.photos/seed/womenscricket/1920/800" class="w-full h-full object-cover opacity-40 mix-blend-overlay" alt="Ladies Cricket Match">
+             <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-900/40"></div>
+        </div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center h-full">
+                <!-- Left: Text -->
+                <div class="flex flex-col items-start justify-center">
+                    <h2 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
+                        Empowering the<br>
+                        <span class="text-emerald-400">Next Generation</span><br>
+                        of Champions.
+                    </h2>
+                    <p class="text-xl text-emerald-100 max-w-2xl mb-8 font-light">
+                        "Cricket is not just a game; it's a journey of discipline, teamwork, and resilience. Whether you're picking up a bat for the first time or perfecting your cover drive, every practice session brings you closer to greatness."
+                    </p>
+                    <button class="bg-white text-emerald-900 px-8 py-3 rounded-full font-bold hover:bg-emerald-50 transition-colors shadow-lg">
+                        Join Our Women's League
+                    </button>
+                </div>
+                <!-- Right: Stadium Image -->
+                <div class="hidden md:flex justify-center items-center">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl skew-y-3 transform hover:skew-y-0 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="World Class Cricket Stadium" class="w-full h-auto object-cover border-4 border-emerald-400/30">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <div class="absolute bottom-4 left-4 text-white font-bold text-lg drop-shadow-md">
+                            Play Where Legends Are Made
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Latest Videos -->
@@ -238,11 +295,92 @@ const submitContact = () => {
                 </div>
             </div>
 
-            <div class="mt-20 pt-8 border-t border-slate-200 text-center text-slate-500 text-sm">
-                <p>&copy; 2026 PlayCricket. All rights reserved.</p>
-            </div>
+
         </div>
     </section>
+
+    <!-- Expanded Footer -->
+    <footer class="bg-slate-900 text-white pt-16 pb-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                <!-- Brand & Description -->
+                <div>
+                     <div class="flex items-center mb-6">
+                        <img src="/logo.png" alt="PlayCricket" class="h-10 w-auto mr-3 brightness-0 invert" />
+                        <span class="text-2xl font-bold text-white">PlayCricket</span>
+                     </div>
+                     <p class="text-slate-400 text-sm leading-relaxed mb-6">
+                        Your premier destination for professional cricket training and lane rentals. Elevate your game today.
+                     </p>
+                     <!-- Social Icons -->
+                     <div class="flex space-x-4">
+                        <a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">
+                            <span class="sr-only">Facebook</span>
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">
+                            <span class="sr-only">Twitter</span>
+                             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                        </a>
+                        <a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">
+                             <span class="sr-only">Instagram</span>
+                             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                        </a>
+                     </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="text-white font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#home" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Home</a></li>
+                        <li><a href="#news" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">News</a></li>
+                        <li><a href="#partners" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Partners</a></li>
+                        <li><a href="#contact" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Contact</a></li>
+                        <li><button @click="$emit('login')" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors text-left">Client Portal</button></li>
+                    </ul>
+                </div>
+
+                <!-- Services -->
+                 <div>
+                    <h3 class="text-white font-bold mb-4">Services</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lane Hire</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Bowling Machines</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Coaching Clinics</a></li>
+                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Club Events</a></li>
+                    </ul>
+                </div>
+
+                 <!-- Visit Us -->
+                 <div>
+                    <h3 class="text-white font-bold mb-4">Visit Us</h3>
+                    <p class="text-slate-400 text-sm mb-4">
+                        123 Cricket Avenue, Sportsville<br>
+                        Cape Town, 8000
+                    </p>
+                    <h4 class="text-white font-bold text-sm mb-2">Opening Hours</h4>
+                    <p class="text-slate-400 text-sm">
+                        Mon - Fri: 09:00 - 20:00<br>
+                        Sat - Sun: 08:00 - 18:00
+                    </p>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center">
+                 <p class="text-slate-500 text-sm text-center md:text-left mb-4 md:mb-0">
+                    &copy; 2026 PlayCricket. All rights reserved.
+                 </p>
+                 <div class="flex flex-wrap gap-4 md:gap-6 mt-4 md:mt-0 justify-center md:justify-end">
+                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Terms</a>
+                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Privacy</a>
+                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Cookies</a>
+                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Sitemap</a>
+                 </div>
+            </div>
+        </div>
+    </footer>
   </div>
 </template>
 
