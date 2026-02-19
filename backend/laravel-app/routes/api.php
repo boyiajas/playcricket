@@ -16,6 +16,7 @@ Route::post('/members', [MemberController::class, 'store']);
 Route::get('/bookings', [BookingController::class, 'index']);
 Route::get('/bookings/member/{memberId}', [BookingController::class, 'byMember']);
 Route::post('/bookings', [BookingController::class, 'store']);
+Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
 
 Route::get('/campaigns', [CampaignController::class, 'index']);
 Route::post('/campaigns', [CampaignController::class, 'store']);
@@ -24,3 +25,8 @@ Route::get('/chat', [ChatController::class, 'index']);
 Route::post('/chat', [ChatController::class, 'store']);
 
 Route::get('/audit', [AuditController::class, 'index']);
+
+// Payment Routes
+Route::get('/payment/return', [App\Http\Controllers\PaymentController::class, 'return'])->name('payment.return');
+Route::get('/payment/cancel', [App\Http\Controllers\PaymentController::class, 'cancel'])->name('payment.cancel');
+Route::post('/payment/notify', [App\Http\Controllers\PaymentController::class, 'notify'])->name('payment.notify');

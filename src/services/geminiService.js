@@ -8,7 +8,7 @@ const getAiClient = () => {
 export const generateTemplate = async (topic, channel, tone) => {
   try {
     const ai = getAiClient();
-    const prompt = `You are a helpful assistant for a Cricket Sports Facility called "CricBook Pro".
+    const prompt = `You are a helpful assistant for a Cricket Sports Facility called "PlayCricket".
     Write a professional ${channel} message template about "${topic}".
     The tone should be ${tone}.
     Keep it concise.

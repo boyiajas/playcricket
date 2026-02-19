@@ -45,7 +45,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentTab, setTab, userRole, onLogou
           {isOpen ? (
             <div>
               <h1 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-transparent bg-clip-text whitespace-nowrap">
-                CricBook Pro
+                PlayCricket
               </h1>
               <p className="text-[10px] text-slate-400 mt-0.5">Facility Manager</p>
             </div>

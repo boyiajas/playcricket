@@ -10,7 +10,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['select-date']);
+const emit = defineEmits(['select-date', 'select-booking']);
 
 const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -34,6 +34,10 @@ const cells = computed(() => {
 
 const selectDate = (date) => {
   if (date) emit('select-date', date);
+};
+
+const selectBooking = (booking) => {
+  emit('select-booking', booking);
 };
 </script>
 
@@ -70,8 +74,9 @@ const selectDate = (date) => {
             <div
               v-for="booking in cell.bookings"
               :key="booking.id"
-              class="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0.5 md:py-1 rounded border truncate shadow-sm"
+              class="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0.5 md:py-1 rounded border truncate shadow-sm cursor-pointer hover:ring-1 hover:ring-emerald-400"
               :class="booking.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-orange-50 text-orange-800 border-orange-200'"
+              @click.stop="selectBooking(booking)"
             >
               <span class="font-bold hidden md:inline">{{ booking.startTime }} </span>
               {{ booking.facility }}

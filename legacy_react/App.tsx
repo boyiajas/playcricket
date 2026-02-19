@@ -619,14 +619,14 @@ const Login = ({ onLogin }: { onLogin: (role: Role) => void }) => {
       <div className="bg-white w-full max-w-md rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-2 bg-emerald-500"></div>
         <div className="text-center mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">CricBook Pro</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">PlayCricket</h1>
           <p className="text-sm text-slate-500">Facility Management Login</p>
         </div>
         
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">Email</label>
-            <input type="email" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" placeholder="coach@cricbook.com" />
+            <input type="email" className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" placeholder="coach@playcricket.com" />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-700 mb-1">Password</label>

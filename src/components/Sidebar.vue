@@ -11,7 +11,7 @@ const props = defineProps({
 const emit = defineEmits(['update:tab', 'update:open', 'logout']);
 
 const menuItems = computed(() => {
-  const base = [
+  let base = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
     { id: 'bookings', label: 'Bookings', icon: '🏏' },
     { id: 'members', label: 'Members', icon: '👥' },
@@ -19,6 +19,10 @@ const menuItems = computed(() => {
     { id: 'chat', label: 'Live Chat', icon: '💬' },
     { id: 'reports', label: 'Reports', icon: '📈' },
   ];
+
+  if (props.userRole === Role.MEMBER) {
+    base = base.filter((item) => item.id !== 'members');
+  }
 
   if (props.userRole === Role.SUPER_ADMIN) {
     base.push({ id: 'audit', label: 'Audit Trail', icon: '🛡️' });
@@ -47,11 +51,11 @@ const setTab = (tab) => emit('update:tab', tab);
       <div class="p-6 border-b border-slate-700 flex items-center" :class="!isOpen ? 'justify-center' : 'justify-between'">
         <div v-if="isOpen">
           <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-transparent bg-clip-text whitespace-nowrap">
-            CricBook Pro
+            PlayCricket
           </h1>
           <p class="text-[10px] text-slate-400 mt-0.5">Facility Manager</p>
         </div>
-        <div v-else class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-lg">CP</div>
+        <div v-else class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-lg">PC</div>
 
         <button class="md:hidden text-slate-400 hover:text-white" @click="closeSidebar">✕</button>
       </div>

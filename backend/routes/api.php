@@ -16,6 +16,7 @@ Route::post('/members', [MemberController::class, 'store']);
 Route::get('/bookings', [BookingController::class, 'index']);
 Route::get('/bookings/member/{memberId}', [BookingController::class, 'byMember']);
 Route::post('/bookings', [BookingController::class, 'store']);
+Route::delete('/bookings/{id}', [BookingController::class, 'destroy']);
 
 Route::get('/campaigns', [CampaignController::class, 'index']);
 Route::post('/campaigns', [CampaignController::class, 'store']);

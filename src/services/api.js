@@ -1,24 +1,14 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+import axios from './axios';
 
-const request = async (path, options) => {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
-
-  if (!response.ok) {
-    throw new Error(`API ${response.status}`);
-  }
-
-  return await response.json();
-};
+const API_PREFIX = '/api';
 
 export const api = {
-  login: (role) => request('/login', { method: 'POST', body: JSON.stringify({ role }) }),
-  members: () => request('/members'),
-  bookings: () => request('/bookings'),
-  createBooking: (payload) => request('/bookings', { method: 'POST', body: JSON.stringify(payload) }),
-  campaigns: () => request('/campaigns'),
-  chat: (memberId) => request(memberId ? `/chat?memberId=${memberId}` : '/chat'),
-  audit: () => request('/audit'),
+  login: (role) => axios.post(`${API_PREFIX}/login`, { role }).then(res => res.data),
+  members: () => axios.get(`${API_PREFIX}/members`).then(res => res.data),
+  bookings: () => axios.get(`${API_PREFIX}/bookings`).then(res => res.data),
+  createBooking: (payload) => axios.post(`${API_PREFIX}/bookings`, payload).then(res => res.data),
+  deleteBooking: (id) => axios.delete(`${API_PREFIX}/bookings/${id}`).then(res => res.data),
+  campaigns: () => axios.get(`${API_PREFIX}/campaigns`).then(res => res.data),
+  chat: (memberId) => axios.get(memberId ? `${API_PREFIX}/chat?memberId=${memberId}` : `${API_PREFIX}/chat`).then(res => res.data),
+  audit: () => axios.get(`${API_PREFIX}/audit`).then(res => res.data),
 };

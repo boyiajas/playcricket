@@ -1,5 +1,5 @@
 <script setup lang="js">
-import { onBeforeUnmount, onMounted, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import Sidebar from './components/Sidebar.vue';
 import Dashboard from './components/Dashboard.vue';
 import BookingSystem from './components/BookingSystem.vue';
@@ -27,6 +27,12 @@ const handleResize = () => {
 
 onMounted(() => {
   console.log('App.vue mounted');
+  const storedUser = localStorage.getItem('playcricket_user');
+  const storedTab = localStorage.getItem('playcricket_tab');
+  if (storedUser) {
+    currentUser.value = JSON.parse(storedUser);
+    activeTab.value = storedTab || (currentUser.value.role === Role.MEMBER ? 'bookings' : 'dashboard');
+  }
   handleResize();
   loadData();
   window.addEventListener('resize', handleResize);
@@ -35,6 +41,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   window.removeEventListener('resize', handleResize);
 });
+
+watch(
+  () => activeTab.value,
+  (tab) => {
+    if (currentUser.value) {
+      localStorage.setItem('playcricket_tab', tab);
+    }
+  }
+);
 
 const handleLogin = async (role) => {
   try {
@@ -46,6 +61,8 @@ const handleLogin = async (role) => {
     currentUser.value = user;
   }
   activeTab.value = role === Role.MEMBER ? 'bookings' : 'dashboard';
+  localStorage.setItem('playcricket_user', JSON.stringify(currentUser.value));
+  localStorage.setItem('playcricket_tab', activeTab.value);
 };
 
 const loadData = async () => {
@@ -59,8 +76,8 @@ const loadData = async () => {
   try {
     bookings.value = await api.bookings();
   } catch (error) {
-    console.warn('Bookings fallback to mock', error);
-    bookings.value = MOCK_BOOKINGS;
+    console.warn('Bookings fallback to empty', error);
+    bookings.value = [];
   }
 
   try {
@@ -87,7 +104,18 @@ const loadData = async () => {
 
 const handleLogout = () => {
   currentUser.value = null;
+  localStorage.removeItem('playcricket_user');
+  localStorage.removeItem('playcricket_tab');
 };
+
+const memberId = computed(() => currentUser.value?.memberId || 'm1');
+
+const visibleBookings = computed(() => {
+  if (currentUser.value?.role === Role.MEMBER) {
+    return bookings.value.filter((b) => (b.memberId || b.member_id) === memberId.value);
+  }
+  return bookings.value;
+});
 </script>
 
 <template>
@@ -132,8 +160,8 @@ const handleLogout = () => {
       </header>
 
       <div class="mx-auto">
-        <Dashboard v-if="activeTab === 'dashboard'" :bookings="bookings" :campaigns="campaigns" />
-        <BookingSystem v-else-if="activeTab === 'bookings'" :initial-bookings="bookings" :members="members" />
+        <Dashboard v-if="activeTab === 'dashboard'" :bookings="visibleBookings" :campaigns="campaigns" :members="members" />
+        <BookingSystem v-else-if="activeTab === 'bookings'" :initial-bookings="visibleBookings" :members="members" :member-id="memberId" />
         <MemberList v-else-if="activeTab === 'members'" :members="members" />
         <CampaignManager v-else-if="activeTab === 'campaigns'" :campaigns="campaigns" />
         <ChatInterface v-else-if="activeTab === 'chat'" :members="members" :messages="chatMessages" />

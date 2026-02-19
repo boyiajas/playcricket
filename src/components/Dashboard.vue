@@ -12,6 +12,10 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+  members: {
+    type: Array,
+    default: () => [],
+  },
 });
 
 const channelData = [
@@ -20,11 +24,27 @@ const channelData = [
   { name: 'SMS', sent: 1200, response: 300, bar: 'bg-orange-500' },
 ];
 
-const todayBookings = computed(() => props.bookings.filter((b) => b.date === '2023-10-28').length);
-const activeMembers = computed(() => MOCK_MEMBERS.length);
+const normalizeBooking = (b) => ({
+  ...b,
+  memberId: b.memberId || b.member_id,
+  date: b.date ? String(b.date).slice(0, 10) : '',
+  startTime: b.startTime || b.start_time || '',
+  status: b.status || 'PENDING',
+});
+
+const normalizedBookings = computed(() => props.bookings.map(normalizeBooking));
+
+const todayStr = new Date().toISOString().slice(0, 10);
+const todayBookings = computed(() => normalizedBookings.value.filter((b) => b.date === todayStr).length);
+const activeMembers = computed(() => (props.members && props.members.length ? props.members.length : MOCK_MEMBERS.length));
 
 const maxSent = Math.max(...channelData.map((c) => c.sent));
 const yTicks = [0, 400, 800, 1200, 1600];
+
+const membersLookup = computed(() => {
+  const source = props.members && props.members.length ? props.members : MOCK_MEMBERS;
+  return Object.fromEntries(source.map((m) => [m.id, m]));
+});
 </script>
 
 <template>
@@ -90,7 +110,7 @@ const yTicks = [0, 400, 800, 1200, 1600];
         <h3 class="text-lg font-semibold mb-4 text-slate-700">Matches</h3>
         <div class="space-y-3">
           <div
-            v-for="booking in bookings.slice(0, 4)"
+            v-for="booking in normalizedBookings.slice(0, 4)"
             :key="booking.id"
             class="flex items-center justify-between p-3 hover:bg-emerald-50/50 rounded-xl transition-colors border border-slate-100"
           >
@@ -99,7 +119,7 @@ const yTicks = [0, 400, 800, 1200, 1600];
               <p class="text-[11px] text-slate-500">{{ booking.date }} • {{ booking.startTime }}</p>
             </div>
             <div class="text-right">
-              <span class="text-[11px] font-bold text-slate-700 block truncate">{{ MOCK_MEMBERS.find((m) => m.id === booking.memberId)?.name }}</span>
+              <span class="text-[11px] font-bold text-slate-700 block truncate">{{ membersLookup[booking.memberId]?.name }}</span>
               <span
                 class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full"
                 :class="booking.status === 'CONFIRMED' ? 'text-emerald-700 bg-emerald-50' : 'text-orange-600 bg-orange-50'"

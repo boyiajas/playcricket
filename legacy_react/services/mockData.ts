@@ -1,9 +1,9 @@
 import { User, Role, Member, Campaign, Channel, Booking, BookingStatus, AuditLog, ChatMessage } from '../types';
 
 export const MOCK_USERS: User[] = [
-  { id: 'u1', name: 'Coach Carter', email: 'admin@cricbook.com', role: Role.SUPER_ADMIN, department: 'Management', avatarUrl: 'https://picsum.photos/200' },
-  { id: 'u2', name: 'Groundsman Gary', email: 'gary@cricbook.com', role: Role.MANAGER, department: 'Facilities', avatarUrl: 'https://picsum.photos/201' },
-  { id: 'u3', name: 'Sarah Staff', email: 'sarah@cricbook.com', role: Role.STAFF, department: 'Front Desk', avatarUrl: 'https://picsum.photos/202' },
+  { id: 'u1', name: 'Coach Carter', email: 'admin@playcricket.com', role: Role.SUPER_ADMIN, department: 'Management', avatarUrl: 'https://picsum.photos/200' },
+  { id: 'u2', name: 'Groundsman Gary', email: 'gary@playcricket.com', role: Role.MANAGER, department: 'Facilities', avatarUrl: 'https://picsum.photos/201' },
+  { id: 'u3', name: 'Sarah Staff', email: 'sarah@playcricket.com', role: Role.STAFF, department: 'Front Desk', avatarUrl: 'https://picsum.photos/202' },
   { id: 'u4', name: 'Rahul Dravid (Member)', email: 'rahul@cricket.com', role: Role.MEMBER, department: 'Member', avatarUrl: 'https://picsum.photos/203' },
 ];
 

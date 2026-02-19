@@ -9,9 +9,9 @@ export const generateTemplate = async (topic: string, channel: string, tone: str
   try {
     const ai = getAiClient();
     // Updated context for Cricket/Sports
-    const prompt = `You are a helpful assistant for a Cricket Sports Facility called "CricBook Pro".
-    Write a professional ${channel} message template about "${topic}". 
-    The tone should be ${tone}. 
+    const prompt = `You are a helpful assistant for a Cricket Sports Facility called "PlayCricket".
+    Write a professional ${channel} message template about "${topic}".
+    The tone should be ${tone}.
     Keep it concise.
     Context: Cricket match bookings, tournament invites, membership renewals, or rain delays.
     If it is for WhatsApp, include placeholders like {{1}}, {{2}} for variables.

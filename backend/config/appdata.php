@@ -2,9 +2,9 @@
 
 return [
     'users' => [
-        ['id' => 'u1', 'name' => 'Coach Carter', 'email' => 'admin@cricbook.com', 'role' => 'SUPER_ADMIN', 'department' => 'Management', 'avatarUrl' => 'https://picsum.photos/200'],
-        ['id' => 'u2', 'name' => 'Groundsman Gary', 'email' => 'gary@cricbook.com', 'role' => 'MANAGER', 'department' => 'Facilities', 'avatarUrl' => 'https://picsum.photos/201'],
-        ['id' => 'u3', 'name' => 'Sarah Staff', 'email' => 'sarah@cricbook.com', 'role' => 'STAFF', 'department' => 'Front Desk', 'avatarUrl' => 'https://picsum.photos/202'],
+        ['id' => 'u1', 'name' => 'Coach Carter', 'email' => 'admin@playcricket.com', 'role' => 'SUPER_ADMIN', 'department' => 'Management', 'avatarUrl' => 'https://picsum.photos/200'],
+        ['id' => 'u2', 'name' => 'Groundsman Gary', 'email' => 'gary@playcricket.com', 'role' => 'MANAGER', 'department' => 'Facilities', 'avatarUrl' => 'https://picsum.photos/201'],
+        ['id' => 'u3', 'name' => 'Sarah Staff', 'email' => 'sarah@playcricket.com', 'role' => 'STAFF', 'department' => 'Front Desk', 'avatarUrl' => 'https://picsum.photos/202'],
         ['id' => 'u4', 'name' => 'Rahul Dravid (Member)', 'email' => 'rahul@cricket.com', 'role' => 'MEMBER', 'department' => 'Member', 'avatarUrl' => 'https://picsum.photos/203'],
     ],
     'members' => [

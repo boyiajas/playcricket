@@ -1,4 +1,4 @@
-# CricBook Pro – Vue + Laravel
+# PlayCricket – Vue + Laravel
 
 The React/Vite prototype has been migrated to a Vue 3 front-end with a Laravel-ready API skeleton.
 

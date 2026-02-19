@@ -9,7 +9,7 @@ const emit = defineEmits(['login']);
     <div class="bg-white w-full max-w-md rounded-2xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
       <div class="absolute top-0 left-0 w-full h-2 bg-emerald-500" />
       <div class="text-center mb-8">
-        <h1 class="text-2xl md:text-3xl font-bold text-slate-900">CricBook Pro</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-900">PlayCricket</h1>
         <p class="text-sm text-slate-500">Facility Management Login</p>
       </div>
 
@@ -19,7 +19,7 @@ const emit = defineEmits(['login']);
           <input
             type="email"
             class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
-            placeholder="coach@cricbook.com"
+            placeholder="coach@playcricket.com"
           />
         </div>
         <div>
