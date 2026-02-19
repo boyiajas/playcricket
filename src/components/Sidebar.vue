@@ -50,12 +50,12 @@ const setTab = (tab) => emit('update:tab', tab);
     >
       <div class="p-6 border-b border-slate-700 flex items-center" :class="!isOpen ? 'justify-center' : 'justify-between'">
         <div v-if="isOpen">
-          <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-green-500 text-transparent bg-clip-text whitespace-nowrap">
-            PlayCricket
-          </h1>
-          <p class="text-[10px] text-slate-400 mt-0.5">Facility Manager</p>
+          <img src="/logo.png" alt="PlayCricket" class="h-12 w-auto" />
+          <p class="text-[10px] text-slate-400 mt-0.5 pl-2">Facility Manager</p>
         </div>
-        <div v-else class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center font-bold text-lg">PC</div>
+        <div v-else class="w-10 h-10 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+             <img src="/logo.png" alt="PC" class="w-full h-full object-contain" />
+        </div>
 
         <button class="md:hidden text-slate-400 hover:text-white" @click="closeSidebar">✕</button>
       </div>

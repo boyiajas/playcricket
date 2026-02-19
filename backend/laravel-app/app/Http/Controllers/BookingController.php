@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\Schema;
 class BookingController extends Controller
 {
     protected $payFastService;
+    protected $notificationService;
 
-    public function __construct(PayFastService $payFastService)
+    public function __construct(PayFastService $payFastService, \App\Services\NotificationService $notificationService)
     {
         $this->payFastService = $payFastService;
+        $this->notificationService = $notificationService;
     }
 
     public function index()
@@ -31,14 +33,26 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'memberId' => 'nullable|string', // Changed to nullable based on migration
+            'memberId' => 'nullable|string',
             'facility' => 'required|string',
             'date' => 'required|date',
             'startTime' => 'required|string',
             'durationHours' => 'required|numeric',
             'status' => 'nullable|string',
-            'payNow' => 'boolean' // New field
+            'payNow' => 'boolean',
+            'ageGroup' => 'nullable|string', // 'Under 13', 'Above 13'
+            'playerName' => 'nullable|string'
         ]);
+
+        // Logic: Age/Lane Assignment
+        $lane = null;
+        if (isset($data['ageGroup'])) {
+            if ($data['ageGroup'] === 'Under 13') {
+                $lane = 'Lane 1';
+            } elseif ($data['ageGroup'] === 'Above 13') {
+                $lane = 'Lane 2';
+            }
+        }
 
         $bookingPayload = [
             'member_id' => $data['memberId'] ?? 'guest',
@@ -46,20 +60,32 @@ class BookingController extends Controller
             'date' => $data['date'],
             'start_time' => $data['startTime'],
             'duration_hours' => $data['durationHours'],
-            'status' => 'PENDING',
-            'payment_status' => 'UNPAID'
+            'status' => 'PENDING', // Will be confirmed after payment if payNow is true
+            'payment_status' => 'UNPAID',
+            'age_group' => $data['ageGroup'] ?? null,
+            'player_name' => $data['playerName'] ?? null,
+            'lane' => $lane
         ];
 
-        if (!$this->ensureBookingsTable()) {
-            $booking = $this->buildFallbackBooking($bookingPayload);
+        // If not paying now, we can auto-confirm for reservation
+        if (!$request->boolean('payNow')) {
+             $bookingPayload['status'] = 'CONFIRMED';
+        }
 
+        if (!$this->ensureBookingsTable()) {
             return response()->json([
-                'booking' => $booking,
+                'booking' => $this->buildFallbackBooking($bookingPayload),
                 'message' => 'Booking created successfully (non-persistent fallback)'
             ], 201);
         }
 
         $booking = Booking::create($bookingPayload);
+
+        // Send Notification if confirmed
+        if ($booking->status === 'CONFIRMED') {
+            // Placeholder email - in real app fetch from user/member
+            $this->notificationService->sendBookingConfirmation($booking, 'user@example.com');
+        }
 
         $response = [
             'booking' => $booking,
@@ -128,6 +154,9 @@ class BookingController extends Controller
             'duration_hours' => (int) ($payload['duration_hours'] ?? 1),
             'status' => 'PENDING',
             'payment_status' => 'UNPAID',
+            'lane' => $payload['lane'] ?? null,
+            'age_group' => $payload['age_group'] ?? null,
+            'player_name' => $payload['player_name'] ?? null,
         ];
     }
 }

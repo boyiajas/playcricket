@@ -26,6 +26,9 @@ Route::post('/chat', [ChatController::class, 'store']);
 
 Route::get('/audit', [AuditController::class, 'index']);
 
+// Reports
+Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index']);
+
 // Payment Routes
 Route::get('/payment/return', [App\Http\Controllers\PaymentController::class, 'return'])->name('payment.return');
 Route::get('/payment/cancel', [App\Http\Controllers\PaymentController::class, 'cancel'])->name('payment.cancel');

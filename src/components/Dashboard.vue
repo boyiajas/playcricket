@@ -1,7 +1,8 @@
 <script setup lang="js">
-import { computed } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import StatCard from './StatCard.vue';
 import { MOCK_MEMBERS } from '../services/mockData';
+import { api } from '../services/api';
 
 const props = defineProps({
   bookings: {
@@ -16,6 +17,21 @@ const props = defineProps({
     type: Array,
     default: () => [],
   },
+});
+
+const reports = ref({
+    daily: { bookings: 0, revenue: 0 },
+    weekly: { bookings: 0, revenue: 0 },
+    monthly: { bookings: 0, revenue: 0 }
+});
+
+onMounted(async () => {
+    try {
+        const data = await api.reports();
+        if (data) reports.value = data;
+    } catch (e) {
+        console.warn('Failed to fetch reports', e);
+    }
 });
 
 const channelData = [
@@ -34,8 +50,6 @@ const normalizeBooking = (b) => ({
 
 const normalizedBookings = computed(() => props.bookings.map(normalizeBooking));
 
-const todayStr = new Date().toISOString().slice(0, 10);
-const todayBookings = computed(() => normalizedBookings.value.filter((b) => b.date === todayStr).length);
 const activeMembers = computed(() => (props.members && props.members.length ? props.members.length : MOCK_MEMBERS.length));
 
 const maxSent = Math.max(...channelData.map((c) => c.sent));
@@ -58,10 +72,10 @@ const membersLookup = computed(() => {
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-      <StatCard title="Today's Bookings" :value="todayBookings" icon="🏏" color="bg-emerald-500" trend="Full" />
-      <StatCard title="Active Members" :value="activeMembers" icon="👥" color="bg-blue-500" trend="+3" />
-      <StatCard title="Broadcasts" value="3,500" icon="📡" color="bg-purple-500" />
-      <StatCard title="Revenue" value="$4,200" icon="💰" color="bg-orange-500" trend="15%" />
+      <StatCard title="Today's Bookings" :value="reports.daily.bookings" icon="🏏" color="bg-emerald-500" trend="Daily" />
+      <StatCard title="Weekly Revenue" :value="`R ${reports.weekly.revenue}`" icon="💰" color="bg-blue-500" trend="Weekly" />
+      <StatCard title="Monthly Revenue" :value="`R ${reports.monthly.revenue}`" icon="📈" color="bg-purple-500" trend="Monthly" />
+      <StatCard title="Active Members" :value="activeMembers" icon="👥" color="bg-orange-500" trend="Total" />
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

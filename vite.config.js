@@ -26,4 +26,5 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
+  publicDir: 'backend/laravel-app/public',
 });

@@ -1,4 +1,5 @@
 <script setup lang="js">
+import LandingPage from './components/LandingPage.vue';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import Sidebar from './components/Sidebar.vue';
 import Dashboard from './components/Dashboard.vue';
@@ -13,6 +14,7 @@ import { MOCK_AUDIT_LOGS, MOCK_BOOKINGS, MOCK_CAMPAIGNS, MOCK_CHATS, MOCK_MEMBER
 import { Role } from './types';
 
 const currentUser = ref(null);
+const showLogin = ref(false); // New state to control login modal visibility
 const activeTab = ref('dashboard');
 const isSidebarOpen = ref(true);
 const members = ref(MOCK_MEMBERS);
@@ -55,10 +57,12 @@ const handleLogin = async (role) => {
   try {
     const user = await api.login(role);
     currentUser.value = user;
+    showLogin.value = false; // Hide login modal on success
   } catch (error) {
     console.warn('API login failed, using mock user', error);
     const user = MOCK_USERS.find((u) => u.role === role) || MOCK_USERS[0];
     currentUser.value = user;
+    showLogin.value = false;
   }
   activeTab.value = role === Role.MEMBER ? 'bookings' : 'dashboard';
   localStorage.setItem('playcricket_user', JSON.stringify(currentUser.value));
@@ -106,6 +110,7 @@ const handleLogout = () => {
   currentUser.value = null;
   localStorage.removeItem('playcricket_user');
   localStorage.removeItem('playcricket_tab');
+  showLogin.value = false; // Reset to landing page
 };
 
 const memberId = computed(() => currentUser.value?.memberId || 'm1');
@@ -119,7 +124,16 @@ const visibleBookings = computed(() => {
 </script>
 
 <template>
-  <Login v-if="!currentUser" @login="handleLogin" />
+  <div v-if="!currentUser">
+    <LandingPage @login="showLogin = true" />
+    <div v-if="showLogin" class="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="relative bg-white rounded-2xl shadow-2xl overflow-hidden max-w-4xl w-full">
+             <button @click="showLogin = false" class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 font-bold">✕</button>
+             <Login @login="handleLogin" />
+        </div>
+    </div>
+  </div>
+  
   <div v-else class="flex bg-slate-50 min-h-screen font-sans text-slate-900 overflow-x-hidden">
     <Sidebar
       :current-tab="activeTab"

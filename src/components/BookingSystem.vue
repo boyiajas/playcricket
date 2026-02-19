@@ -38,66 +38,59 @@ const bookings = ref(
 const showModal = ref(false);
 const showExistingModal = ref(false);
 const currentDate = ref({ year: 2023, month: 9 });
-const newBooking = ref({ date: '', time: '10:00', facility: 'Pitch 1', duration: 1 });
-const editableBooking = ref(null);
-const displayMembers = computed(() => (props.members && props.members.length ? props.members : MOCK_MEMBERS));
+const cart = ref([]);
+const newBooking = ref({ date: '', time: '10:00', facility: 'Pitch 1', duration: 1, ageGroup: 'Under 13', playerName: '' });
 
-const currentMonthLabel = computed(() =>
-  new Date(currentDate.value.year, currentDate.value.month).toLocaleString('default', { month: 'long', year: 'numeric' })
-);
-
-const handleDateClick = (date) => {
-  newBooking.value.date = date;
-  showModal.value = true;
+const addToCart = () => {
+    cart.value.push({ ...newBooking.value, id: Date.now() });
+    showModal.value = false;
+    // Reset for next
+    newBooking.value = { ...newBooking.value, time: '10:00', playerName: '' }; 
 };
 
-const handleBookingClick = (booking) => {
-  editableBooking.value = { ...normalizeBooking(booking) };
-  showExistingModal.value = true;
-};
-
-const submitPaymentForm = (url, data) => {
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = url;
-  
-  for (const key in data) {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = data[key];
-    form.appendChild(input);
-  }
-  
-  document.body.appendChild(form);
-  form.submit();
+const removeFromCart = (index) => {
+    cart.value.splice(index, 1);
 };
 
 const handleBook = async (payNow = false) => {
-  const bookingData = {
-    memberId: props.memberId || 'm1', // ideally current user id
-    facility: newBooking.value.facility,
-    date: newBooking.value.date,
-    startTime: newBooking.value.time,
-    durationHours: newBooking.value.duration,
-    payNow: payNow
-  };
+  if (cart.value.length === 0) return;
 
   try {
-    const response = await api.createBooking(bookingData);
-    
-    if (payNow && response.payment_data) {
-      // Redirect to PayFast
-      submitPaymentForm(response.payment_data.url, response.payment_data.data);
-    } else {
-        // Just reserve
-    bookings.value.push(normalizeBooking(response.booking));
-    showModal.value = false;
-    alert('Booking reserved successfully!');
-    }
+      const results = [];
+      // Process all items in cart
+      for (const item of cart.value) {
+          const bookingData = {
+            memberId: props.memberId || 'm1',
+            facility: item.facility,
+            date: item.date,
+            startTime: item.time,
+            durationHours: item.duration,
+            ageGroup: item.ageGroup,
+            playerName: item.playerName,
+            payNow: payNow
+          };
+          
+          const response = await api.createBooking(bookingData);
+          results.push(response);
+          bookings.value.push(normalizeBooking(response.booking));
+      }
+
+      // Handle Payment Redirect (if any payNow was selected, we might need a bulk flow, 
+      // but for now let's just use the last one's payment link or assume individual processing)
+      // *Improvement*: The backend 'payFastService' generates a form for ONE booking. 
+      // For multiple, we'd ideally aggregate. For MVP, we'll redirect for the FIRST payNow item found.
+      const paymentItem = results.find(r => r.payment_data);
+      
+      if (payNow && paymentItem) {
+        submitPaymentForm(paymentItem.payment_data.url, paymentItem.payment_data.data);
+      } else {
+        alert('All bookings reserved successfully!');
+        cart.value = [];
+      }
+
   } catch (error) {
     console.error('Booking failed', error);
-    alert('Failed to create booking.');
+    alert('Failed to process some bookings.');
   }
 };
 
@@ -332,7 +325,7 @@ onMounted(() => {
       v-if="showModal"
       class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-[100] p-4"
     >
-      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 relative">
+      <div class="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200 relative max-h-[90vh] overflow-y-auto">
         <button
           class="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 flex items-center justify-center transition-colors"
           aria-label="Close booking modal"
@@ -344,6 +337,29 @@ onMounted(() => {
           <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mr-2 text-sm">🏏</span>
           Book a Slot
         </h3>
+        
+        <!-- Cart Visualization -->
+        <div v-if="cart.length > 0" class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h4 class="font-bold text-sm text-slate-700 mb-2">Selected Slots ({{ cart.length }})</h4>
+            <div class="space-y-2 max-h-40 overflow-y-auto">
+                <div v-for="(item, idx) in cart" :key="idx" class="flex justify-between items-center text-xs bg-white p-2 rounded border border-slate-100">
+                    <div>
+                        <span class="font-bold text-emerald-700">{{ item.facility }}</span>
+                        <p class="text-slate-500">{{ item.date }} @ {{ item.time }} ({{ item.ageGroup }})</p>
+                    </div>
+                    <button @click="removeFromCart(idx)" class="text-red-500 hover:text-red-700">✕</button>
+                </div>
+            </div>
+            <div class="mt-3 grid grid-cols-2 gap-2 pt-3 border-t border-slate-200">
+                 <button class="px-3 py-1.5 border border-emerald-600 text-emerald-700 rounded text-xs font-bold hover:bg-emerald-50" @click="handleBook(false)">
+                    Checkout (Reserve)
+                 </button>
+                 <button class="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700" @click="handleBook(true)">
+                    Checkout (Pay)
+                 </button>
+            </div>
+        </div>
+
         <div class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-700 mb-1">Facility</label>
@@ -385,13 +401,32 @@ onMounted(() => {
               class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
             />
           </div>
+          <!-- New Fields -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Age Group</label>
+                <select v-model="newBooking.ageGroup" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                  <option>Under 13</option>
+                  <option>Above 13</option>
+                </select>
+                <p class="text-[10px] text-slate-500 mt-1">
+                    Assigned Lane: <span class="font-bold text-emerald-600">{{ newBooking.ageGroup === 'Under 13' ? 'Lane 1' : 'Lane 2' }}</span>
+                </p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Player Name</label>
+                <input
+                    v-model="newBooking.playerName"
+                    type="text"
+                    placeholder="Optional"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                />
+              </div>
+          </div>
         </div>
-        <div class="mt-6 grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
-             <button class="px-4 py-2 border-2 border-emerald-600 text-emerald-700 font-bold rounded-lg hover:bg-emerald-50 transition-colors" @click="handleBook(false)">
-                Reserve Only
-             </button>
-             <button class="px-4 py-2 bg-emerald-600 text-white font-bold rounded-lg hover:bg-emerald-700 shadow-lg transition-all" @click="handleBook(true)">
-                Pay Now
+        <div class="mt-6 pt-4 border-t border-slate-100">
+             <button class="w-full px-4 py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 shadow-lg transition-all flex justify-center items-center gap-2" @click="addToCart">
+                <span>+ Add to Cart</span>
              </button>
         </div>
       </div>
