@@ -3,57 +3,43 @@ import { ref } from 'vue';
 
 const emit = defineEmits(['login']);
 
-const slides = [
-  {
-    id: 1,
-    image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-    title: 'Precision Cricket Training',
-    subtitle: 'Book our state-of-the-art lanes and bowling machines.'
-  },
-  {
-    id: 2,
-    image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-    title: 'Professional Coaching',
-    subtitle: 'Elevate your game with expert guidance.'
-  },
-  {
-    id: 3,
-    image: 'https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80',
-    title: 'Junior Development',
-    subtitle: 'Specialized programs for future stars.'
-  }
-];
-
-const currentSlide = ref(0);
-
-const nextSlide = () => {
-  currentSlide.value = (currentSlide.value + 1) % slides.length;
-};
-
-const prevSlide = () => {
-    currentSlide.value = (currentSlide.value - 1 + slides.length) % slides.length;
-};
-
-// Auto-advance slider
-setInterval(nextSlide, 5000);
-
-const news = [
-    { id: 1, title: 'Summer Camp Registration Open', date: 'Feb 20, 2026', image: 'https://picsum.photos/seed/news1/800/600' },
-    { id: 2, title: 'New Bowling Machine Installed', date: 'Feb 15, 2026', image: 'https://picsum.photos/seed/news2/800/600' },
-    { id: 3, title: 'U13 League Winners Announced', date: 'Feb 10, 2026', image: 'https://picsum.photos/seed/news3/800/600' },
-];
-
-const videos = [
-    { id: 1, title: 'Batting Masterclass', thumbnail: 'https://placehold.co/600x338/darkblue/white?text=Video+1' },
-    { id: 2, title: 'Spin Bowling Tips', thumbnail: 'https://placehold.co/600x338/darkred/white?text=Video+2' },
-    { id: 3, title: 'Fielding Drills', thumbnail: 'https://placehold.co/600x338/darkgreen/white?text=Video+3' },
-];
-
-const partners = [
-    { id: 1, name: 'Kookaburra', logo: 'https://placehold.co/150x80/eee/333?text=Logo+1' },
-    { id: 2, name: 'Gray-Nicolls', logo: 'https://placehold.co/150x80/eee/333?text=Logo+2' },
-    { id: 3, name: 'Adidas', logo: 'https://placehold.co/150x80/eee/333?text=Logo+3' },
-    { id: 4, name: 'New Balance', logo: 'https://placehold.co/150x80/eee/333?text=Logo+4' },
+const services = [
+    { 
+        id: 1, 
+        title: 'Lane Hire', 
+        description: 'Three full-size indoor cricket lanes available for hire. Perfect for net sessions, team drills, or individual practice.',
+        image: '/images/lane-hire.png'
+    },
+    { 
+        id: 2, 
+        title: 'Bowling Machines', 
+        description: 'State-of-the-art bowling machines delivering pace, spin, swing and seam. Dial up any delivery type from gentle pace to express speed.',
+        image: '/images/bowling-machine.png'
+    },
+    { 
+        id: 3, 
+        title: 'Private Coaching', 
+        description: '1-on-1 sessions with our expert coaches. Technical refinement, mental game, batting, bowling, or fielding - your session, your goals.',
+        image: '/images/private-coaching.jpg'
+    },
+    { 
+        id: 4, 
+        title: 'Group Coaching', 
+        description: 'Small-group sessions for schools, club & squads. Our coaches run structured programs designed to build team skill and cohesion simultaneously.',
+        image: '/images/group-coaching.png'
+    },
+    { 
+        id: 5, 
+        title: 'Junior Academy', 
+        description: 'Structured programs for U9–U19 players. Skill development, match preparation and age-appropriate coaching in a safe, high-energy environment.',
+        image: '/images/junior-academy.png'
+    },
+    { 
+        id: 6, 
+        title: 'Online Booking', 
+        description: 'Book lanes, coaching sessions, and machine time instantly online. Secure payment, instant confirmation, and easy rescheduling - all from your phone.',
+        image: '/images/online-booking.png'
+    },
 ];
 
 const contactForm = ref({
@@ -62,32 +48,94 @@ const contactForm = ref({
     message: ''
 });
 
+const dateInput = ref(null);
+
+const bookingData = ref({
+    date: new Date(Date.now() + 86400000).toISOString().substr(0, 10), // Default to tomorrow
+    time: '16:00 - 17:00',
+    service: 'Lane 02 + Bowling Machine'
+});
+
+const availableTimes = [
+    '09:00 - 10:00', '10:00 - 11:00', '11:00 - 12:00', '12:00 - 13:00',
+    '13:00 - 14:00', '14:00 - 15:00', '15:00 - 16:00', '16:00 - 17:00',
+    '17:00 - 18:00', '18:00 - 19:00', '19:00 - 20:00'
+];
+
+const availableServices = [
+    'Lane 01 Hire', 'Lane 02 Hire', 'Lane 02 + Bowling Machine',
+    'Private Coaching', 'Group Session', 'Junior Academy'
+];
+
 const submitContact = () => {
     alert('Thank you! We will contact you shortly.');
     contactForm.value = { name: '', email: '', message: '' };
 };
+
+const testimonials = [
+    { 
+        name: 'James K.', 
+        role: 'Club Cricketer', 
+        quote: '"Priya transformed my run-up and I went from 115 to 130 kph in eight weeks. I didn\'t think that was possible at my age. Absolutely recommend her to any aspiring pacer."', 
+        stars: 5, 
+        avatar: '/images/parent-1.png' 
+    },
+    { 
+        name: 'Melissa Turner', 
+        role: 'Parent of U12 player', 
+        quote: '"Daniel has a gift for working with kids. My daughter was shy and unsure - now she\'s obsessed with cricket and talks about it non-stop. Cricket changed everything for her."', 
+        stars: 5, 
+        avatar: '/images/parent-2.png' 
+    },
+    { 
+        name: 'Vikram Sharma', 
+        role: 'Club Captain', 
+        type: 'video', 
+        avatar: '/images/player-vikram.png' 
+    },
+    { 
+        name: 'Amir M.', 
+        role: 'U19 Fast Bowler', 
+        type: 'video', 
+        avatar: '/images/player-amir.png' 
+    },
+    { 
+        name: 'Emily T.', 
+        role: 'U17 Representative', 
+        quote: '"Booked our whole squad in for a pre-season net session. The lanes are immaculate, booking was dead easy, and the staff were super helpful. We\'ll be back every month."', 
+        stars: 5, 
+        avatar: '/images/parent-3.png' 
+    },
+    { 
+        name: 'Melissa Turner', 
+        role: 'Parent of U10 player', 
+        quote: '"My son went from being nervous at the crease to one of the top batters in his U12 team. The coaches here actually care about development."', 
+        stars: 5, 
+        avatar: '/images/parent-4.png' 
+    },
+];
 
 </script>
 
 <template>
   <div class="font-sans text-slate-800 bg-white">
     <!-- Navbar -->
-    <nav class="fixed w-full z-50 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all duration-300">
+    <nav class="fixed w-full z-50 bg-white border-b border-slate-100 shadow-sm transition-all duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
           <div class="flex-shrink-0 flex items-center cursor-pointer" @click="$emit('login')">
              <img src="/logo.png" alt="PlayCricket" class="h-16 w-auto" />
           </div>
-          <div class="hidden md:flex space-x-8 items-center">
-            <a href="#home" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">Home</a>
-            <a href="#news" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">News</a>
-            <a href="#partners" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">Partners</a>
-            <a href="#contact" class="text-slate-600 hover:text-emerald-600 font-medium transition-colors">Contact</a>
+          <div class="hidden md:flex space-x-12 items-center">
+            <a href="#lanes" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Lanes</a>
+            <a href="#coaching" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Coaching</a>
+            <a href="#academy" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Academy</a>
+            <a href="#contact" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Contact</a>
             <button
                 @click="$emit('login')"
-                class="bg-slate-900 text-white px-5 py-2.5 rounded-full font-semibold hover:bg-slate-800 transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-md hover:shadow-lg transform active:scale-95"
             >
-              Client Portal
+              Book Now
             </button>
           </div>
            <!-- Mobile menu button placeholder -->
@@ -98,286 +146,511 @@ const submitContact = () => {
       </div>
     </nav>
 
-    <!-- Hero Section (Sticky Slider) -->
-    <section id="home" class="relative h-screen overflow-hidden">
-       <div 
-         v-for="(slide, index) in slides" 
-         :key="slide.id"
-         class="absolute inset-0 transition-opacity duration-1000 ease-in-out"
-         :class="{ 'opacity-100': currentSlide === index, 'opacity-0': currentSlide !== index }"
-       >
-          <div class="absolute inset-0 bg-black/40 z-10"></div>
-          <img :src="slide.image" class="w-full h-full object-cover animate-pan" alt="Hero Image" />
-          <div class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center text-white px-4">
-               <h1 class="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg tracking-tight animate-fade-in-up">{{ slide.title }}</h1>
-               <p class="text-xl md:text-2xl mb-10 max-w-2xl font-light text-slate-100 animate-fade-in-up delay-100">{{ slide.subtitle }}</p>
-               <button 
-                  @click="$emit('login')"
-                  class="bg-emerald-600 hover:bg-emerald-500 text-white text-lg font-bold px-8 py-4 rounded-full transition-all shadow-xl hover:shadow-2xl transform hover:scale-105 animate-fade-in-up delay-200"
-               >
-                  Book Your Slot Now
-               </button>
-          </div>
+    <!-- Hero Section -->
+    <section id="home" class="relative h-screen bg-black overflow-hidden flex items-center justify-center">
+       <div class="absolute inset-0">
+          <img src="/hero-player.png" class="w-full h-full object-cover opacity-80" alt="Hero Athlete" />
+          <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60"></div>
        </div>
        
-       <!-- Slider Controls -->
-       <button @click="prevSlide" class="absolute left-4 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur text-white transition-all">◀</button>
-       <button @click="nextSlide" class="absolute right-4 top-1/2 -translate-y-1/2 z-30 p-2 bg-white/10 hover:bg-white/20 rounded-full backdrop-blur text-white transition-all">▶</button>
-
-       <!-- Slider Dots -->
-       <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex space-x-3">
-           <button 
-               v-for="(slide, index) in slides" 
-               :key="'dot-' + slide.id"
-               @click="currentSlide = index"
-               class="w-3 h-3 rounded-full transition-all duration-300 shadow-sm"
-               :class="currentSlide === index ? 'bg-emerald-500 scale-125' : 'bg-white/50 hover:bg-white/80'"
-               :aria-label="'Go to slide ' + (index + 1)"
-           ></button>
+       <!-- Play Button Overlay -->
+       <div class="relative z-20 group cursor-pointer" @click="$emit('login')">
+          <div class="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-white/30 flex items-center justify-center backdrop-blur-sm group-hover:border-white/60 transition-all duration-500 scale-90 group-hover:scale-100">
+             <div class="w-24 h-24 md:w-36 md:h-36 rounded-full border-2 border-white/50 flex items-center justify-center">
+                <div class="w-0 h-0 border-t-[20px] md:border-t-[30px] border-t-transparent border-l-[35px] md:border-l-[50px] border-l-white border-b-[20px] md:border-b-[30px] border-b-transparent ml-3 md:ml-5"></div>
+             </div>
+          </div>
+          <!-- Pulse animation circles -->
+          <div class="absolute inset-0 rounded-full border border-white/20 animate-ping opacity-20"></div>
+          <div class="absolute inset-0 rounded-full border border-white/10 animate-ping opacity-10 delay-300"></div>
        </div>
+
+       <!-- Hero Decorative Line (from screenshot) -->
+       <div class="absolute left-0 right-0 top-1/2 border-t border-dashed border-blue-400/30 -z-0 pointer-events-none"></div>
+       <div class="absolute top-0 bottom-0 left-1/2 border-l border-dashed border-blue-400/30 -z-0 pointer-events-none"></div>
     </section>
 
-    <!-- Latest News -->
-    <section id="news" class="relative py-20 bg-slate-50 overflow-hidden">
-        <!-- Background Pattern -->
-        <div class="absolute inset-0 z-0 opacity-20 pointer-events-none">
+    <!-- Our Services Section -->
+    <section id="services" class="relative pb-24 bg-white overflow-hidden">
+        <!-- Background Watermark -->
+        <div class="absolute inset-0 z-0 opacity-[0.8] pointer-events-none flex items-center justify-center p-20">
             <img 
-                src="https://picsum.photos/seed/cricket/1920/1080?grayscale" 
-                class="w-full h-full object-cover"
-                alt="Cricket Background Pattern"
+                src="/images/services-bg.png" 
+                class="max-w-4xl w-full h-auto object-contain grayscale"
+                alt="Services Background Pattern"
+                style="margin-left: 600px; margin-top: -720px;opacity: 0.1;"
             />
         </div>
 
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div class="text-center mb-16">
-               <h2 class="text-4xl font-bold text-slate-900 mb-4">Latest News From The Pitch</h2>
-               <div class="w-24 h-1 bg-emerald-500 mx-auto rounded-full"></div>
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+           <div class="text-center mb-20">
+               <p class="text-[#FF0F20] font-bold uppercase tracking-widest text-sm mb-2">What we offer</p>
+               <h2 class="text-5xl font-bold text-slate-900 mb-6">Our Services</h2>
+               <p class="text-slate-500 text-lg max-w-3xl mx-auto leading-relaxed">
+                   Everything you need to take your game to the next level. From casual practice to professional development.
+               </p>
            </div>
-           <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div v-for="item in news" :key="item.id" class="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow group">
-                  <div class="h-48 overflow-hidden">
-                     <img :src="item.image" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" :alt="item.title">
+           
+           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
+              <div v-for="service in services" :key="service.id" class="group">
+                  <div class="relative h-64 mb-6 overflow-hidden rounded-[2rem] shadow-xl transition-transform duration-500 group-hover:scale-[1.02]">
+                     <img :src="service.image" class="w-full h-full object-cover" :alt="service.title">
+                     <div class="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
                   </div>
-                  <div class="p-6">
-                     <span class="text-emerald-600 text-sm font-bold uppercase tracking-wider">{{ item.date }}</span>
-                     <h3 class="text-xl font-bold mt-2 text-slate-800">{{ item.title }}</h3>
-                     <p class="mt-3 text-slate-600 text-sm">Ideally this would be a snippet of the news article content to entice reading more...</p>
-                     <a href="#" class="inline-block mt-4 text-emerald-600 font-bold hover:text-emerald-700">Read More →</a>
-                  </div>
+                  <h3 class="text-2xl font-bold text-slate-900 mb-3">{{ service.title }}</h3>
+                  <p class="text-slate-500 leading-relaxed text-sm md:text-base">
+                      {{ service.description }}
+                  </p>
               </div>
            </div>
+
+           <div class="flex justify-center mt-12">
+               <button 
+                  @click="$emit('login')"
+                  class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white text-lg font-bold px-10 py-4 rounded-xl transition-all shadow-xl hover:shadow-2xl transform active:scale-95"
+               >
+                  Book Your Slot Now
+               </button>
+           </div>
         </div>
     </section>
 
-    <!-- Motivation Banner -->
-    <section class="relative py-32 bg-emerald-900 overflow-hidden">
-        <div class="absolute inset-0">
-             <img src="https://picsum.photos/seed/womenscricket/1920/800" class="w-full h-full object-cover opacity-40 mix-blend-overlay" alt="Ladies Cricket Match">
-             <div class="absolute inset-0 bg-gradient-to-r from-emerald-900/90 to-emerald-900/40"></div>
+    <!-- Quick Booking Section -->
+    <section id="booking" class="relative py-24 overflow-hidden">
+        <!-- Grass Background -->
+        <div class="absolute inset-0 z-0">
+             <img src="/images/booking-bg.jpg" class="w-full h-full object-cover" alt="Cricket Pitch Grass Background">
+             <div class="absolute inset-0 bg-black/65"></div>
         </div>
-        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center h-full">
-                <!-- Left: Text -->
-                <div class="flex flex-col items-start justify-center">
-                    <h2 class="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight">
-                        Empowering the<br>
-                        <span class="text-emerald-400">Next Generation</span><br>
-                        of Champions.
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <!-- Left: Content -->
+                <div class="text-white">
+                    <p class="text-white/80 font-bold uppercase tracking-widest text-sm mb-4">Play Cricket</p>
+                    <h2 class="text-5xl md:text-6xl font-bold mb-8 leading-tight">
+                        Book Your Session<br>
+                        <span class="text-[#FF0F20]">in Seconds</span>
                     </h2>
-                    <p class="text-xl text-emerald-100 max-w-2xl mb-8 font-light">
-                        "Cricket is not just a game; it's a journey of discipline, teamwork, and resilience. Whether you're picking up a bat for the first time or perfecting your cover drive, every practice session brings you closer to greatness."
+                    <p class="text-xl text-white/90 max-w-xl mb-10 leading-relaxed">
+                        Our modern booking system allows you to secure your lane or coaching session instantly. No phone calls, no waiting. Just pick your time and play.
                     </p>
-                    <button class="bg-white text-emerald-900 px-8 py-3 rounded-full font-bold hover:bg-emerald-50 transition-colors shadow-lg">
-                        Join Our Women's League
-                    </button>
-                </div>
-                <!-- Right: Stadium Image -->
-                <div class="hidden md:flex justify-center items-center">
-                    <div class="relative rounded-2xl overflow-hidden shadow-2xl skew-y-3 transform hover:skew-y-0 transition-transform duration-500">
-                        <img src="https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80" alt="World Class Cricket Stadium" class="w-full h-auto object-cover border-4 border-emerald-400/30">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 text-white font-bold text-lg drop-shadow-md">
-                            Play Where Legends Are Made
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Latest Videos -->
-    <section class="py-20 bg-slate-900 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-           <div class="flex justify-between items-end mb-12">
-               <div>
-                  <h2 class="text-4xl font-bold mb-2">Training Hub</h2>
-                  <p class="text-slate-400">Watch the latest drills and tips from our pros.</p>
-               </div>
-               <button class="text-emerald-400 hover:text-emerald-300 font-bold border-b-2 border-emerald-500 pb-1">View All Videos</button>
-           </div>
-           <div class="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x">
-               <div v-for="video in videos" :key="video.id" class="min-w-[300px] md:min-w-[400px] snap-center">
-                   <div class="relative rounded-xl overflow-hidden shadow-2xl aspect-video group cursor-pointer">
-                       <img :src="video.thumbnail" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" :alt="video.title">
-                       <div class="absolute inset-0 flex items-center justify-center">
-                           <div class="w-16 h-16 bg-emerald-600/90 rounded-full flex items-center justify-center pl-1 shadow-xl group-hover:scale-110 transition-transform">
-                               ▶
-                           </div>
-                       </div>
-                   </div>
-                   <h3 class="mt-4 text-lg font-bold">{{ video.title }}</h3>
-               </div>
-           </div>
-        </div>
-    </section>
-
-    <!-- Partners Section -->
-    <section id="partners" class="py-16 bg-white border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <p class="text-slate-400 font-bold uppercase tracking-widest text-sm mb-8">Trusted by Top Equipment Brands</p>
-            <div class="flex flex-wrap justify-center items-center gap-12 opacity-60 hover:opacity-100 transition-opacity">
-               <div v-for="partner in partners" :key="partner.id" class="flex items-center space-x-2 grayscale hover:grayscale-0 transition-all duration-300">
-                   <!-- Replaced text with visual block placeholder for logo -->
-                   <div class="h-12 w-32 bg-slate-200 rounded flex items-center justify-center text-slate-400 font-bold text-xs">{{ partner.name }}</div>
-               </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact & Footer -->
-    <section id="contact" class="bg-slate-50 pt-20 pb-10">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-emerald-900 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row">
-                <div class="md:w-1/2 p-12 text-white">
-                    <h2 class="text-3xl font-bold mb-6">Get In Touch</h2>
-                    <p class="text-emerald-100 mb-8">Have questions about booking lanes or our coaching programs? Drop us a message.</p>
                     
-                    <div class="space-y-6">
-                        <div class="flex items-start gap-4">
-                            <span class="text-2xl">📍</span>
+                    <ul class="space-y-6">
+                        <li v-for="feature in ['Real-time Lane Availability', 'Instant Payment Confirmation', 'Manage Bookings via your Profile', 'Automated Session Reminders']" :key="feature" class="flex items-center gap-4 text-lg">
+                            <div class="w-6 h-6 rounded-full border-2 border-white/50 flex items-center justify-center text-xs">✓</div>
+                            {{ feature }}
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Right: Booking Card -->
+                <div class="flex justify-center lg:justify-end">
+                    <div class="bg-white w-full max-w-md rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                        <div class="flex items-center gap-6 mb-8">
+                            <div class="w-16 h-16 bg-[#FF0F20] rounded-2xl flex items-center justify-center shadow-lg shadow-[#FF0F20]/20">
+                                <span class="text-3xl text-white">🕒</span>
+                            </div>
                             <div>
-                                <h4 class="font-bold">Location</h4>
-                                <p class="text-emerald-100 text-sm">123 Cricket Avenue, Sportsville<br>Cape Town, 8000</p>
+                                <h3 class="text-2xl font-bold text-slate-900">Quick Booking</h3>
+                                <p class="text-slate-400 text-sm">Select your preferred slot</p>
+                            </div>
+                             <div class="ml-auto opacity-20">
+                                <span class="text-5xl">📅</span>
                             </div>
                         </div>
-                        <div class="flex items-start gap-4">
-                            <span class="text-2xl">📞</span>
-                            <div>
-                                <h4 class="font-bold">Phone</h4>
-                                <p class="text-emerald-100 text-sm">+27 21 123 4567</p>
+
+                        <div class="space-y-4 mb-8">
+                            <!-- Date Field -->
+                            <div @click="dateInput?.showPicker()" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer relative lg:h-16">
+                                <span class="text-slate-400 font-bold text-sm select-none">Date</span>
+                                <div class="flex items-center gap-2">
+                                    <input ref="dateInput" type="date" v-model="bookingData.date" 
+                                           class="bg-transparent text-slate-800 font-bold text-sm outline-none cursor-pointer focus:ring-0 border-none p-0 text-right appearance-none font-sans min-w-[120px]">
+                                </div>
+                            </div>
+
+                            <!-- Time Field -->
+                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer relative">
+                                <span class="text-slate-400 font-bold text-sm">Time</span>
+                                <select v-model="bookingData.time" 
+                                        class="bg-transparent text-slate-800 font-bold text-sm outline-none cursor-pointer focus:ring-0 border-none p-0 text-right appearance-none">
+                                    <option v-for="t in availableTimes" :key="t" :value="t">{{ t }}</option>
+                                </select>
+                            </div>
+
+                            <!-- Service Field -->
+                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer relative">
+                                <span class="text-slate-400 font-bold text-sm">Service</span>
+                                <select v-model="bookingData.service" 
+                                        class="bg-transparent text-slate-800 font-bold text-sm outline-none cursor-pointer focus:ring-0 border-none p-0 text-right appearance-none truncate max-w-[180px]">
+                                    <option v-for="s in availableServices" :key="s" :value="s">{{ s }}</option>
+                                </select>
                             </div>
                         </div>
-                         <div class="flex items-start gap-4">
-                            <span class="text-2xl">📧</span>
-                            <div>
-                                <h4 class="font-bold">Email</h4>
-                                <p class="text-emerald-100 text-sm">bookings@playcricket.co.za</p>
-                            </div>
-                        </div>
+
+                        <button 
+                           @click="$emit('login')"
+                           class="w-full bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-5 rounded-2xl transition-all shadow-xl hover:shadow-[#FF0F20]/20 transform active:scale-[0.98] flex items-center justify-center gap-3"
+                        >
+                           <span>🎫</span>
+                           Proceed to Payment
+                        </button>
+                        
+                        <p class="text-center text-slate-400 text-[10px] mt-6 uppercase tracking-widest font-bold">
+                           Secure 256-bit SSL encrypted payment
+                        </p>
                     </div>
                 </div>
-                <div class="md:w-1/2 bg-white p-12">
-                     <form @submit.prevent="submitContact" class="space-y-4">
-                         <div>
-                             <label class="block text-sm font-bold text-slate-700 mb-1">Name</label>
-                             <input v-model="contactForm.name" type="text" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="Your Name">
-                         </div>
-                         <div>
-                             <label class="block text-sm font-bold text-slate-700 mb-1">Email</label>
-                             <input v-model="contactForm.email" type="email" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="john@example.com">
-                         </div>
-                         <div>
-                             <label class="block text-sm font-bold text-slate-700 mb-1">Message</label>
-                             <textarea v-model="contactForm.message" rows="4" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" placeholder="How can we help?"></textarea>
-                         </div>
-                         <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-3 rounded-lg hover:bg-emerald-700 transition-colors shadow-lg">Send Message</button>
-                     </form>
-                </div>
             </div>
-
-
         </div>
     </section>
 
-    <!-- Expanded Footer -->
-    <footer class="bg-slate-900 text-white pt-16 pb-8 border-t border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-                <!-- Brand & Description -->
-                <div>
-                     <div class="flex items-center mb-6">
-                        <img src="/logo.png" alt="PlayCricket" class="h-10 w-auto mr-3 brightness-0 invert" />
-                        <span class="text-2xl font-bold text-white">PlayCricket</span>
-                     </div>
-                     <p class="text-slate-400 text-sm leading-relaxed mb-6">
-                        Your premier destination for professional cricket training and lane rentals. Elevate your game today.
-                     </p>
-                     <!-- Social Icons -->
-                     <div class="flex space-x-4">
-                        <a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">
-                            <span class="sr-only">Facebook</span>
-                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                        </a>
-                        <a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">
-                            <span class="sr-only">Twitter</span>
-                             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.84 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
-                        </a>
-                        <a href="#" class="text-slate-400 hover:text-emerald-400 transition-colors">
-                             <span class="sr-only">Instagram</span>
-                             <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                        </a>
-                     </div>
+    <!-- Meet Our Coaches Section -->
+    <section id="coaches" class="relative pt-32 pb-0 bg-white overflow-hidden">
+        <!-- Decorative Bat -->
+        <div class="absolute top-20 left-10 opacity-100 z-10 pointer-events-none scale-110" style="margin-left: 15%;">
+            <img src="/images/decorative-bat.png" class="w-[320px] h-auto drop-shadow-2xl" alt="Decorative Cricket Bat">
+        </div>
+
+        <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-24">
+                <p class="text-[#FF0F20] font-extrabold uppercase tracking-[0.2em] text-sm mb-4">Trainers</p>
+                <h2 class="text-7xl font-bold text-[#0f172a] tracking-tight">Meet Our Coaches</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-0">
+                <!-- Coach 1: Mike Thompson -->
+                <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
+                    <div class="pt-10 pb-4 text-center">
+                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Mike Thompson</h3>
+                        <p class="text-[#FF0F20] font-extrabold text-xs uppercase tracking-widest">Head Coach</p>
+                    </div>
+                    <div class="w-full mt-auto flex justify-center px-6">
+                        <img src="/images/coach-mike.png" class="w-full h-auto object-contain transform group-hover:scale-110 transition-transform duration-700" alt="Mike Thompson">
+                    </div>
                 </div>
 
-                <!-- Quick Links -->
-                <div>
-                    <h3 class="text-white font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#home" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Home</a></li>
-                        <li><a href="#news" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">News</a></li>
-                        <li><a href="#partners" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Partners</a></li>
-                        <li><a href="#contact" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Contact</a></li>
-                        <li><button @click="$emit('login')" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors text-left">Client Portal</button></li>
-                    </ul>
+                <!-- Coach 2: Tom Harris -->
+                <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
+                    <div class="pt-10 pb-4 text-center">
+                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Tom Harris</h3>
+                        <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Batting Coach</p>
+                    </div>
+                    <div class="w-full mt-auto flex justify-center px-6">
+                        <img src="/images/coach-tom.png" class="w-full h-auto object-contain transform group-hover:scale-110 transition-transform duration-700" alt="Tom Harris">
+                    </div>
                 </div>
 
-                <!-- Services -->
-                 <div>
-                    <h3 class="text-white font-bold mb-4">Services</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Lane Hire</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Bowling Machines</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Coaching Clinics</a></li>
-                        <li><a href="#" class="text-slate-400 hover:text-emerald-400 text-sm transition-colors">Club Events</a></li>
-                    </ul>
+                <!-- Coach 3: Ryan Davies -->
+                <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
+                    <div class="pt-10 pb-4 text-center">
+                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Ryan Davies</h3>
+                        <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Bowling Coach</p>
+                    </div>
+                    <div class="w-full mt-auto flex justify-center px-6">
+                        <img src="/images/coach-ryan.png" class="w-full h-auto object-contain transform group-hover:scale-110 transition-transform duration-700" alt="Ryan Davies">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Red Stats Bar -->
+        <div class="bg-red-600 py-20 relative z-30" style="margin-top: -2px;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-12">
+                    <div v-for="stat in [
+                        { val: '2,150+', label: 'People Joined' },
+                        { val: '150+', label: 'Matches Played' },
+                        { val: '05+', label: 'Years of Service' },
+                        { val: '07+', label: 'Trophies Won' }
+                    ]" :key="stat.label" class="text-center text-white relative flex flex-col items-center border-white/20 last:border-0 lg:border-r border-white/20">
+                        <div class="text-6xl font-black mb-6 tracking-tighter">{{ stat.val }}</div>
+                        <div class="w-16 h-1.5 bg-white rounded-full mb-6 drop-shadow-md"></div>
+                        <div class="text-xl font-bold tracking-wide opacity-95">{{ stat.label }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Who We Train Section -->
+    <section id="programs" class="relative py-24 bg-white overflow-hidden">
+        <!-- Trophy Watermark Background -->
+        <div class="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none z-0">
+            <img src="/images/sketch-bg.png" class="w-[1000px] h-auto" alt="Trophy Sketch Watermark">
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20">
+                <p class="text-red-600 font-extrabold uppercase tracking-widest text-sm mb-4">Who We Train</p>
+                <h2 class="text-6xl font-bold text-[#0f172a] mb-8">Built For Every Cricketer</h2>
+                <p class="text-slate-500 text-xl max-w-3xl mx-auto leading-relaxed">
+                    Whether you're 9 years old holding a bat for the first time, or a seasoned club cricketer 
+                    <span class="relative inline-block">
+                        chasing consistency
+                        <svg class="absolute -bottom-1 left-0 w-full h-1 text-sky-400 opacity-60" fill="none" viewBox="0 0 100 10" preserveAspectRatio="none">
+                            <path d="M0 5 Q 50 0 100 5" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+                        </svg>
+                    </span> 
+                    - Play Cricket has a program for you.
+                </p>
+            </div>
+
+            <div class="relative max-w-5xl mx-auto h-[700px] flex items-center justify-center">
+                <!-- SVG Arrows Layer -->
+                <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 600" fill="none">
+                    <!-- Top Left to Center -->
+                    <path d="M220 180 Q 320 200 380 270" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8,8" />
+                    <!-- Top Right to Center -->
+                    <path d="M580 180 Q 480 200 420 270" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8,8" />
+                    <!-- Center to Bottom Left -->
+                    <path d="M380 330 Q 320 400 220 450" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8,8" />
+                    <!-- Center to Bottom Right -->
+                    <path d="M420 330 Q 480 400 580 450" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8,8" />
+                    
+                    <!-- Arrowheads -->
+                    <polygon points="380,270 375,260 385,260" fill="#cbd5e1" transform="rotate(20 380 270)" />
+                    <polygon points="420,270 415,260 425,260" fill="#cbd5e1" transform="rotate(-20 420 270)" />
+                    <polygon points="220,450 225,440 215,440" fill="#cbd5e1" transform="rotate(-40 220 450)" />
+                    <polygon points="580,450 575,440 585,440" fill="#cbd5e1" transform="rotate(40 580 450)" />
+                </svg>
+
+                <!-- Icons Hub Grid -->
+                <div class="absolute inset-0 grid grid-cols-2 grid-rows-2 h-full gap-40">
+                    <!-- Under 9s -->
+                    <div class="flex flex-col items-center justify-center p-4">
+                        <div class="w-32 h-32 mb-4 drop-shadow-xl hover:scale-110 transition-transform">
+                            <img src="/images/prog-u9.png" class="w-full h-full object-contain" alt="Under 9s">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">Under 9s</h3>
+                        <p class="text-slate-400 text-sm max-w-[200px] text-center leading-snug">Intro to cricket fundamentals. Fun-first, confidence-building coaching for beginners.</p>
+                    </div>
+
+                    <!-- U10-U14 -->
+                    <div class="flex flex-col items-center justify-center p-4">
+                        <div class="w-32 h-32 mb-4 drop-shadow-xl hover:scale-110 transition-transform">
+                            <img src="/images/prog-u14.png" class="w-full h-full object-contain" alt="U10-U14">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">U10–U14</h3>
+                        <p class="text-slate-500 text-sm max-w-[220px] text-center leading-snug">Skill development and competitive prep. The critical years where technique is built properly.</p>
+                    </div>
+
+                    <!-- U15-U19 -->
+                    <div class="flex flex-col items-center justify-center p-4">
+                        <div class="w-32 h-32 mb-4 drop-shadow-xl hover:scale-110 transition-transform">
+                            <img src="/images/prog-u19.png" class="w-full h-full object-contain" alt="U15-U19">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">U15–U19</h3>
+                        <p class="text-slate-500 text-sm max-w-[220px] text-center leading-snug">Performance-focused training for serious junior players eyeing rep or elite cricket.</p>
+                    </div>
+
+                    <!-- Club Cricketers -->
+                    <div class="flex flex-col items-center justify-center p-4">
+                        <div class="w-32 h-32 mb-4 drop-shadow-xl hover:scale-110 transition-transform">
+                            <img src="/images/prog-club.png" class="w-full h-full object-contain" alt="Club Cricketers">
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-2">Club Cricketers</h3>
+                        <p class="text-slate-500 text-sm max-w-[220px] text-center leading-snug">Net sessions, machine time, and optional coaching for adult club players at any level.</p>
+                    </div>
                 </div>
 
-                 <!-- Visit Us -->
-                 <div>
-                    <h3 class="text-white font-bold mb-4">Visit Us</h3>
-                    <p class="text-slate-400 text-sm mb-4">
-                        123 Cricket Avenue, Sportsville<br>
-                        Cape Town, 8000
-                    </p>
-                    <h4 class="text-white font-bold text-sm mb-2">Opening Hours</h4>
-                    <p class="text-slate-400 text-sm">
-                        Mon - Fri: 09:00 - 20:00<br>
-                        Sat - Sun: 08:00 - 18:00
-                    </p>
+                <!-- Central Icon: Schools & Teams -->
+                <div class="relative z-20 bg-white/80 p-6 flex flex-col items-center justify-center">
+                    <div class="absolute opacity-100 z-10 pointer-events-none scale-110" style="margin-left:15%;width: 500px;">
+                        <img src="/images/services-bg.png" class="opacity-10 h-auto drop-shadow-2xl" alt="Decorative Cricket Bat">
+                    </div>
+                    <div class="w-32 h-32 mb-4 drop-shadow-2xl hover:scale-110 transition-transform">
+                        <img src="/images/prog-schools.png" class="w-full h-full object-contain" alt="Schools & Teams">
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 mb-2">Schools & Teams</h3>
+                    <p class="text-slate-500 text-sm max-w-[250px] text-center leading-snug">Group rates for school programs, club squads, and holiday camps. Enquire for packages.</p>
                 </div>
             </div>
 
-            <!-- Bottom Bar -->
-            <div class="pt-8 border-t border-slate-800 flex flex-col md:flex-row justify-between items-center">
-                 <p class="text-slate-500 text-sm text-center md:text-left mb-4 md:mb-0">
-                    &copy; 2026 PlayCricket. All rights reserved.
-                 </p>
-                 <div class="flex flex-wrap gap-4 md:gap-6 mt-4 md:mt-0 justify-center md:justify-end">
-                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Terms</a>
-                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Privacy</a>
-                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Cookies</a>
-                    <a href="#" class="text-slate-500 hover:text-white text-sm transition-colors">Sitemap</a>
-                 </div>
+            <!-- Bottom Button -->
+            <div class="flex justify-center mt-12">
+                <button class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-4 px-10 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
+                    Book Your Slot Now
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- From the Players Section -->
+    <section id="testimonials" class="relative py-24 bg-[#111111] overflow-hidden">
+        <!-- Geometric Background Pattern -->
+        <div class="absolute inset-0 opacity-40 z-0">
+            <img src="/images/testimonials-bg.png" class="w-full h-full object-cover" alt="Background Pattern">
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16">
+                <p class="text-[#FF0F20] font-extrabold uppercase tracking-widest text-sm mb-4">What They're Saying</p>
+                <h2 class="text-6xl font-bold text-white mb-6 tracking-tight">From the Players</h2>
+                <p class="text-slate-400 text-xl max-w-3xl mx-auto leading-relaxed">
+                    At PlayCricket, we use professional coaching and state-of-the-art facilities to simplify your training, 
+                    boost performance, and help you make smarter, faster game-day decisions.
+                </p>
+            </div>
+
+            <!-- Testimonials Staggered Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div v-for="(item, idx) in testimonials" :key="idx" 
+                     class="group relative bg-[#222222]/80 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-8 hover:bg-[#2a2a2a] transition-all duration-500 overflow-hidden shadow-2xl"
+                     :class="{'aspect-square flex items-center justify-center p-0': item.type === 'video'}">
+                    
+                    <!-- Text Testimonial -->
+                    <template v-if="item.type !== 'video'">
+                        <div class="flex gap-1 mb-6">
+                            <span v-for="s in item.stars" :key="s" class="text-yellow-500 text-lg">★</span>
+                        </div>
+                        <p class="text-slate-300 text-lg leading-relaxed mb-8 italic">
+                            {{ item.quote }}
+                        </p>
+                        <div class="flex items-center gap-4 border-t border-white/5 pt-6">
+                            <img :src="item.avatar" class="w-12 h-12 rounded-full object-cover bg-slate-800" :alt="item.name">
+                            <div>
+                                <h4 class="text-white font-bold">{{ item.name }}</h4>
+                                <p class="text-slate-500 text-sm">{{ item.role }}</p>
+                            </div>
+                        </div>
+                    </template>
+
+                    <!-- Video Testimonial -->
+                    <template v-else>
+                        <img :src="item.avatar" class="absolute inset-0 w-full h-full object-cover grayscale-[0.3] group-hover:grayscale-0 transition-all duration-700" :alt="item.name">
+                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                        
+                        <!-- Play Button Overlay -->
+                        <div class="relative z-20 w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform cursor-pointer">
+                            <div class="w-0 h-0 border-t-[12px] border-t-transparent border-l-[18px] border-l-white border-b-[12px] border-b-transparent ml-2"></div>
+                        </div>
+
+                        <!-- Info Overlay -->
+                        <div class="absolute bottom-6 left-6 right-6 z-20 flex items-center gap-3 bg-black/40 backdrop-blur-md p-3 rounded-2xl border border-white/10">
+                            <img :src="item.avatar" class="w-10 h-10 rounded-full object-cover border border-white/20" alt="">
+                            <div>
+                                <h4 class="text-white font-bold text-sm">{{ item.name }}</h4>
+                                <p class="text-slate-400 text-xs">{{ item.role }}</p>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Ready to Train CTA Banner -->
+    <section class="relative py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="relative rounded-[3rem] overflow-hidden shadow-2xl h-[450px] flex items-center justify-center text-center">
+                <!-- Grass Background -->
+                <img src="/images/cta-grass-v2.jpg" class="absolute inset-0 w-full h-full object-cover" alt="Cricket Grass Background">
+                <div class="absolute inset-0 bg-black/50"></div>
+                
+                <div class="relative z-10 px-6">
+                    <p class="text-[#FF0F20] font-extrabold uppercase tracking-widest text-lg mb-4">Ready to Train?</p>
+                    <h2 class="text-6xl font-black text-white mb-6 tracking-tight">Your Next Session Starts Here.</h2>
+                    <p class="text-white text-xl max-w-2xl mx-auto mb-10 opacity-95">
+                        Lanes available 7 days a week. Online booking takes less than 2 minutes.
+                    </p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <button class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-4 px-10 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
+                            Book Your Slot Now
+                        </button>
+                        <button class="bg-transparent border-2 border-white hover:bg-white/10 text-white font-bold py-4 px-10 rounded-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
+                            Contact Us
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- New White Footer -->
+    <footer class="bg-white pt-24 pb-12 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-16">
+                <!-- Brand Column -->
+                <div class="flex flex-col">
+                    <div class="flex items-center mb-8">
+                        <div class="bg-[#FF0F20]/10 p-2 rounded-xl mr-3">
+                            <img src="/logo.png" alt="PlayCricket" class="h-10 w-auto" />
+                        </div>
+                        <span class="text-2xl font-black text-[#0f172a] tracking-tight">PLAY CRICKET</span>
+                    </div>
+                    <p class="text-slate-500 text-sm leading-relaxed mb-8 max-w-xs">
+                        Indoor cricket training done right. Three lanes, elite coaches, and the tech to back it up. Open 7 days.
+                    </p>
+                    <!-- Social Icons (Circular) -->
+                    <div class="flex space-x-4">
+                        <a v-for="(icon, i) in ['facebook', 'instagram', 'linkedin', 'youtube']" :key="i" href="#" 
+                           class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#FF0F20] hover:border-[#FF0F20] transition-all duration-300">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path v-if="icon === 'facebook'" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                <path v-if="icon === 'instagram'" d="M12 2.163v2.163c4.785 0 8.674 3.889 8.674 8.674 0 4.786-3.889 8.674-8.674 8.674s-8.674-3.888-8.674-8.674c0-4.785 3.889-8.674 8.674-8.674zm0-2.163c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12z"/>
+                                <path v-if="icon === 'linkedin'" d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
+                                <path v-if="icon === 'youtube'" d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Services Column -->
+                <div>
+                    <h3 class="text-xl font-bold text-[#0f172a] mb-8">Services</h3>
+                    <ul class="space-y-4">
+                        <li v-for="link in ['Lane Hire', 'Bowling Machine', 'Private Coaching', 'Group Coaching', 'Junior Academy']" :key="link">
+                            <a href="#" class="text-slate-500 hover:text-[#FF0F20] text-sm font-medium transition-colors">{{ link }}</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Academy Column -->
+                <div>
+                    <h3 class="text-xl font-bold text-[#0f172a] mb-8 border-l-4 border-sky-400 pl-4">Academy</h3>
+                    <ul class="space-y-4">
+                        <li v-for="link in ['About Us', 'Our Coaches', 'Facility', 'Testimonials', 'Blog']" :key="link">
+                            <a href="#" class="text-slate-500 hover:text-[#FF0F20] text-sm font-medium transition-colors">{{ link }}</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Visit Us Column -->
+                <div>
+                    <h3 class="text-xl font-bold text-[#0f172a] mb-8">Visit Us</h3>
+                    <div class="space-y-6">
+                        <div class="flex items-center gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">📍</span>
+                            <span class="text-slate-500 text-sm font-medium">123 Cricket Lane</span>
+                        </div>
+                        <div class="flex items-center gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">📞</span>
+                            <span class="text-slate-500 text-sm font-medium">+61 400 000 000</span>
+                        </div>
+                        <div class="flex items-center gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">📧</span>
+                            <span class="text-slate-500 text-sm font-medium">hello@playcricket.com</span>
+                        </div>
+                        <div class="flex items-center gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">⏰</span>
+                            <span class="text-slate-500 text-sm font-medium">Mon–Fri: 6am–9pm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Copyright Bar -->
+            <div class="pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-slate-400 text-sm font-medium mb-4 md:mb-0">
+                    &copy; 2026 Play Cricket. All Rights Reserved.
+                </p>
+                <div class="flex gap-8">
+                    <a href="#" class="text-slate-400 hover:text-slate-900 text-sm font-medium transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-slate-400 hover:text-slate-900 text-sm font-medium transition-colors">Terms of Service</a>
+                </div>
             </div>
         </div>
     </footer>
