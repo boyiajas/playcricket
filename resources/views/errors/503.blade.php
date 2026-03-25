@@ -73,6 +73,16 @@
             font-size: 12px;
         }
 
+        .logo {
+            width: 68px;
+            height: 68px;
+            border-radius: 20px;
+            object-fit: contain;
+            background: #fff;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+            padding: 10px;
+        }
+
         .brand-dot {
             width: 12px;
             height: 12px;
@@ -268,6 +278,7 @@
     <main class="scene">
         <div class="wrap">
             <section class="hero">
+                <img class="logo" src="{{ asset('logo.png') }}" alt="PlayCricket logo">
                 <div class="brand">
                     <span class="brand-dot"></span>
                     <span>PlayCricket</span>
