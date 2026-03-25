@@ -41,19 +41,13 @@ Visit `http://localhost:5173` to view the application.
 
 ### 2. Backend Setup (Laravel)
 
-If setting up the actual Laravel backend:
+The Laravel backend lives at the repo root alongside the Vue frontend.
 
 ```bash
-# Create a new Laravel project (if not already set up)
-composer create-project laravel/laravel laravel-app
+# Install PHP dependencies
+composer install
 
-# Copy backend files from this repo to your Laravel app
-cp -r backend/laravel-app/app/Http/Controllers laravel-app/app/Http/
-cp -r backend/laravel-app/routes/api.php laravel-app/routes/
-cp -r backend/laravel-app/database/migrations laravel-app/database/
-
-# Configure .env
-cp .env.example .env
+# Configure .env (create one if missing) and generate an app key
 php artisan key:generate
 
 # Run migrations
@@ -69,7 +63,7 @@ Ensure the Vue app's API base URL points to your running Laravel instance.
 
 - `src/components/`: Vue components (LandingPage, Login, Register, Dashboard, etc.).
 - `src/services/`: API service wrappers and mock data.
-- `backend/`: Laravel backend files (Controllers, Routes, Config).
+- `app/`, `routes/`, `config/`, `database/`, `resources/`: Laravel backend files.
 
 ## Latest Updates
 

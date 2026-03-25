@@ -14,10 +14,10 @@ export default defineConfig({
   plugins: [
     laravel({
       input: ['src/main.js'],
-      publicDirectory: 'backend/laravel-app/public',
+      publicDirectory: 'public',
       buildDirectory: 'build',
-      hotFile: 'backend/laravel-app/public/hot',
-      refresh: ['backend/laravel-app/resources/views/**'],
+      hotFile: 'public/hot',
+      refresh: ['resources/views/**'],
     }),
     vue(),
   ],
@@ -26,5 +26,5 @@ export default defineConfig({
       '@': path.resolve(__dirname, 'src'),
     },
   },
-  publicDir: 'backend/laravel-app/public',
+  publicDir: 'public',
 });

@@ -11,6 +11,12 @@ node_modules
 dist
 dist-ssr
 *.local
+/.fleet
+/.nova
+/.phpunit.cache
+/.zed
+/auth.json
+/.phpunit.result.cache
 
 # Editor directories and files
 .vscode/*
@@ -23,13 +29,16 @@ dist-ssr
 *.sln
 *.sw?
 /node_modules
-/backend/laravel-app//vendor
-/backend/laravel-app/.env
-/backend/laravel-app/.env.*
-/backend/laravel-app/storage/*.key
-/backend/laravel-app/storage/logs
-/backend/laravel-app/storage/framework
-/backend/laravel-app/public/storage
-.DS_Store
-.idea
-.vscode
+/.env
+/.env.*
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+/storage/logs
+/storage/framework
+/vendor
+Homestead.json
+Homestead.yaml
+Thumbs.db
