@@ -31,7 +31,7 @@ dist-ssr
 /node_modules
 /.env
 /.env.*
-/public/build
+#/public/build
 /public/hot
 /public/storage
 /storage/*.key
