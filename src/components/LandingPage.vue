@@ -50,6 +50,32 @@ const contactForm = ref({
 
 const dateInput = ref(null);
 
+const isTimeDropdownOpen = ref(false);
+const isServiceDropdownOpen = ref(false);
+
+const selectTime = (t) => {
+    bookingData.value.time = t;
+    isTimeDropdownOpen.value = false;
+};
+
+const selectService = (s) => {
+    bookingData.value.service = s;
+    isServiceDropdownOpen.value = false;
+};
+
+const showVideoModal = ref(false);
+const activeVideoUrl = ref('');
+
+const openVideo = (url) => {
+    activeVideoUrl.value = url;
+    showVideoModal.value = true;
+};
+
+const closeVideo = () => {
+    showVideoModal.value = false;
+    activeVideoUrl.value = '';
+};
+
 const bookingData = ref({
     date: new Date(Date.now() + 86400000).toISOString().substr(0, 10), // Default to tomorrow
     time: '16:00 - 17:00',
@@ -154,15 +180,15 @@ const testimonials = [
        </div>
        
        <!-- Play Button Overlay -->
-       <div class="relative z-20 group cursor-pointer" @click="$emit('login')">
-          <div class="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-white/30 flex items-center justify-center backdrop-blur-sm group-hover:border-white/60 transition-all duration-500 scale-90 group-hover:scale-100">
-             <div class="w-24 h-24 md:w-36 md:h-36 rounded-full border-2 border-white/50 flex items-center justify-center">
-                <div class="w-0 h-0 border-t-[20px] md:border-t-[30px] border-t-transparent border-l-[35px] md:border-l-[50px] border-l-white border-b-[20px] md:border-b-[30px] border-b-transparent ml-3 md:ml-5"></div>
+       <div class="relative z-20 group cursor-pointer" @click="openVideo('/hero-video.mp4')">
+          <div class="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-white/50 flex items-center justify-center backdrop-blur-sm group-hover:border-white transition-all duration-500 scale-90 group-hover:scale-100 shadow-[0_0_50px_rgba(255,255,255,0.6)] group-hover:shadow-[0_0_100px_rgba(255,255,255,1)] bg-white/5 group-hover:bg-white/10">
+             <div class="w-24 h-24 md:w-36 md:h-36 rounded-full border-2 border-white/80 flex items-center justify-center shadow-[inset_0_0_30px_rgba(255,255,255,0.6),_0_0_40px_rgba(255,255,255,0.8)] bg-white/10">
+                <div class="w-0 h-0 border-t-[20px] md:border-t-[30px] border-t-transparent border-l-[35px] md:border-l-[50px] border-l-white border-b-[20px] md:border-b-[30px] border-b-transparent ml-3 md:ml-5 drop-shadow-[0_0_25px_rgba(255,255,255,1)] group-hover:drop-shadow-[0_0_40px_rgba(255,255,255,1)]"></div>
              </div>
           </div>
           <!-- Pulse animation circles -->
-          <div class="absolute inset-0 rounded-full border border-white/20 animate-ping opacity-20"></div>
-          <div class="absolute inset-0 rounded-full border border-white/10 animate-ping opacity-10 delay-300"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-white/60 animate-ping opacity-50 shadow-[0_0_50px_rgba(255,255,255,1)]"></div>
+          <div class="absolute inset-0 rounded-full border-2 border-white/40 animate-ping opacity-40 delay-300 shadow-[0_0_40px_rgba(255,255,255,0.8)]"></div>
        </div>
 
        <!-- Hero Decorative Line (from screenshot) -->
@@ -246,8 +272,12 @@ const testimonials = [
 
                 <!-- Right: Booking Card -->
                 <div class="flex justify-center lg:justify-end">
-                    <div class="bg-white w-full max-w-md rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden">
-                        <div class="flex items-center gap-6 mb-8">
+                    <div class="bg-white w-full max-w-md rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-visible">
+                        
+                        <!-- Clickaway overlay for dropdowns -->
+                        <div v-if="isTimeDropdownOpen || isServiceDropdownOpen" @click="isTimeDropdownOpen = false; isServiceDropdownOpen = false" class="fixed inset-0 z-[40]"></div>
+
+                        <div class="flex items-center gap-6 mb-8 relative z-[41]">
                             <div class="w-16 h-16 bg-[#FF0F20] rounded-2xl flex items-center justify-center shadow-lg shadow-[#FF0F20]/20">
                                 <span class="text-3xl text-white">🕒</span>
                             </div>
@@ -271,21 +301,45 @@ const testimonials = [
                             </div>
 
                             <!-- Time Field -->
-                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer relative">
-                                <span class="text-slate-400 font-bold text-sm">Time</span>
-                                <select v-model="bookingData.time" 
-                                        class="bg-transparent text-slate-800 font-bold text-sm outline-none cursor-pointer focus:ring-0 border-none p-0 text-right appearance-none">
-                                    <option v-for="t in availableTimes" :key="t" :value="t">{{ t }}</option>
-                                </select>
+                            <div class="relative z-[45]">
+                                <div @click="isTimeDropdownOpen = !isTimeDropdownOpen; isServiceDropdownOpen = false" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer h-16 relative z-[45]">
+                                    <span class="text-slate-400 font-bold text-sm">Time</span>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-slate-800 font-bold text-sm">{{ bookingData.time }}</span>
+                                        <svg class="w-4 h-4 text-slate-400 transition-transform duration-300" :class="{'rotate-180': isTimeDropdownOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                                
+                                <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-100 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                                    <div v-if="isTimeDropdownOpen" class="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-h-60 overflow-y-auto w-full z-[50]">
+                                        <div v-for="t in availableTimes" :key="t" @click="selectTime(t)"
+                                             class="px-5 py-3 hover:bg-red-50 hover:text-[#FF0F20] text-sm cursor-pointer transition-colors"
+                                             :class="bookingData.time === t ? 'bg-red-50 text-[#FF0F20] font-bold' : 'text-slate-700 font-medium'">
+                                            {{ t }}
+                                        </div>
+                                    </div>
+                                </transition>
                             </div>
 
                             <!-- Service Field -->
-                            <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer relative">
-                                <span class="text-slate-400 font-bold text-sm">Service</span>
-                                <select v-model="bookingData.service" 
-                                        class="bg-transparent text-slate-800 font-bold text-sm outline-none cursor-pointer focus:ring-0 border-none p-0 text-right appearance-none truncate max-w-[180px]">
-                                    <option v-for="s in availableServices" :key="s" :value="s">{{ s }}</option>
-                                </select>
+                            <div class="relative z-[44]">
+                                <div @click="isServiceDropdownOpen = !isServiceDropdownOpen; isTimeDropdownOpen = false" class="bg-slate-50 border border-slate-100 rounded-2xl p-4 flex justify-between items-center group hover:border-[#FF0F20]/20 transition-all cursor-pointer h-16 relative z-[44]">
+                                    <span class="text-slate-400 font-bold text-sm whitespace-nowrap mr-3">Service</span>
+                                    <div class="flex items-center gap-2 min-w-0">
+                                        <span class="text-slate-800 font-bold text-sm truncate">{{ bookingData.service }}</span>
+                                        <svg class="w-4 h-4 text-slate-400 transition-transform duration-300 shrink-0" :class="{'rotate-180': isServiceDropdownOpen}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                                
+                                <transition enter-active-class="transition duration-200 ease-out" enter-from-class="transform scale-95 opacity-0" enter-to-class="transform scale-100 opacity-100" leave-active-class="transition duration-100 ease-in" leave-from-class="transform scale-100 opacity-100" leave-to-class="transform scale-95 opacity-0">
+                                    <div v-if="isServiceDropdownOpen" class="absolute top-[calc(100%+8px)] left-0 right-0 bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden max-h-60 overflow-y-auto w-full z-[50]">
+                                        <div v-for="s in availableServices" :key="s" @click="selectService(s)"
+                                             class="px-5 py-3 hover:bg-red-50 hover:text-[#FF0F20] text-sm cursor-pointer transition-colors"
+                                             :class="bookingData.service === s ? 'bg-red-50 text-[#FF0F20] font-bold' : 'text-slate-700 font-medium'">
+                                            {{ s }}
+                                        </div>
+                                    </div>
+                                </transition>
                             </div>
                         </div>
 
@@ -523,7 +577,7 @@ const testimonials = [
                         <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
                         
                         <!-- Play Button Overlay -->
-                        <div class="relative z-20 w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform cursor-pointer">
+                        <div class="relative z-20 w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center border border-white/30 group-hover:scale-110 transition-transform cursor-pointer" @click="openVideo(item.video || '/hero-video.mp4')">
                             <div class="w-0 h-0 border-t-[12px] border-t-transparent border-l-[18px] border-l-white border-b-[12px] border-b-transparent ml-2"></div>
                         </div>
 
@@ -654,6 +708,17 @@ const testimonials = [
             </div>
         </div>
     </footer>
+
+    <!-- Video Modal -->
+    <div v-if="showVideoModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4" @click="closeVideo">
+        <button class="absolute top-6 right-6 text-white text-4xl hover:text-red-500 z-[101]" @click="closeVideo">&times;</button>
+        <div class="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl" @click.stop>
+            <video ref="videoPlayer" class="w-full h-full object-cover" controls autoplay>
+                <source :src="activeVideoUrl" type="video/mp4" />
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
   </div>
 </template>
 
