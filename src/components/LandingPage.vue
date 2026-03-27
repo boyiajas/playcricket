@@ -2,6 +2,26 @@
 import { ref } from 'vue';
 
 const emit = defineEmits(['login']);
+const isMobileMenuOpen = ref(false);
+const toggleMobileMenu = () => {
+    isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+    isMobileMenuOpen.value = false;
+};
+
+const handleMobileLogin = () => {
+    closeMobileMenu();
+    emit('login');
+};
+
+const handleLogoClick = () => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+        return;
+    }
+    emit('login');
+};
 
 const services = [
     { 
@@ -149,7 +169,7 @@ const testimonials = [
     <nav class="fixed w-full z-50 bg-white border-b border-slate-100 shadow-sm transition-all duration-300">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-20">
-          <div class="flex-shrink-0 flex items-center cursor-pointer" @click="$emit('login')">
+          <div class="flex-shrink-0 flex items-center cursor-pointer" @click="handleLogoClick">
              <img src="/logo.png" alt="PlayCricket" class="h-16 w-auto" />
           </div>
           <div class="hidden md:flex space-x-12 items-center">
@@ -164,11 +184,52 @@ const testimonials = [
               Book Now
             </button>
           </div>
-           <!-- Mobile menu button placeholder -->
-           <div class="md:hidden">
-              <button @click="$emit('login')" class="text-slate-900 font-bold">Menu</button>
+           <!-- Mobile menu button -->
+           <div class="md:hidden flex items-center relative z-50" @click.stop>
+              <button
+                  type="button"
+                  aria-controls="mobile-nav-drawer"
+                  :aria-expanded="isMobileMenuOpen"
+                  @click.stop="toggleMobileMenu"
+                  class="text-slate-900 hover:text-red-600 transition-colors focus:outline-none p-2 -mr-2 relative z-50"
+              >
+                 <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path v-if="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                 </svg>
+              </button>
            </div>
         </div>
+
+        <!-- Mobile Menu Drawer -->
+        <transition 
+            enter-active-class="transition duration-300 ease-out" 
+            enter-from-class="transform -translate-y-3 scale-y-95 opacity-0" 
+            enter-to-class="transform translate-y-0 scale-y-100 opacity-100" 
+            leave-active-class="transition duration-200 ease-in" 
+            leave-from-class="transform translate-y-0 scale-y-100 opacity-100" 
+            leave-to-class="transform -translate-y-3 scale-y-95 opacity-0"
+        >
+            <div
+                id="mobile-nav-drawer"
+                v-show="isMobileMenuOpen"
+                class="md:hidden absolute top-20 left-0 w-full bg-white border-t border-slate-100 shadow-xl overflow-hidden z-40 origin-top transform-gpu"
+            >
+                <div class="px-4 py-6 space-y-2 flex flex-col">
+                    <a href="#lanes" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Lanes</a>
+                    <a href="#coaching" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Coaching</a>
+                    <a href="#academy" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Academy</a>
+                    <a href="#contact" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors mb-4">Contact</a>
+                    
+                    <button 
+                        @click="handleMobileLogin" 
+                        class="w-full mt-4 bg-red-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-red-700 transition-all shadow-md active:scale-95 flex justify-center items-center"
+                    >
+                        Book Now
+                    </button>
+                </div>
+            </div>
+        </transition>
       </div>
     </nav>
 
@@ -211,7 +272,7 @@ const testimonials = [
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
            <div class="text-center mb-20">
                <p class="text-[#FF0F20] font-bold uppercase tracking-widest text-sm mb-2">What we offer</p>
-               <h2 class="text-5xl font-bold text-slate-900 mb-6">Our Services</h2>
+               <h2 class="text-4xl md:text-5xl font-bold text-slate-900 mb-6">Our Services</h2>
                <p class="text-slate-500 text-lg max-w-3xl mx-auto leading-relaxed">
                    Everything you need to take your game to the next level. From casual practice to professional development.
                </p>
@@ -254,7 +315,7 @@ const testimonials = [
                 <!-- Left: Content -->
                 <div class="text-white">
                     <p class="text-white/80 font-bold uppercase tracking-widest text-sm mb-4">Play Cricket</p>
-                    <h2 class="text-5xl md:text-6xl font-bold mb-8 leading-tight">
+                    <h2 class="text-4xl sm:text-5xl md:text-6xl font-bold mb-8 leading-tight">
                         Book Your Session<br>
                         <span class="text-[#FF0F20]">in Seconds</span>
                     </h2>
@@ -370,7 +431,7 @@ const testimonials = [
         <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-24">
                 <p class="text-[#FF0F20] font-extrabold uppercase tracking-[0.2em] text-sm mb-4">Trainers</p>
-                <h2 class="text-7xl font-bold text-[#0f172a] tracking-tight">Meet Our Coaches</h2>
+                <h2 class="text-4xl sm:text-5xl lg:text-7xl font-bold text-[#0f172a] tracking-tight">Meet Our Coaches</h2>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-0">
@@ -419,7 +480,7 @@ const testimonials = [
                         { val: '05+', label: 'Years of Service' },
                         { val: '07+', label: 'Trophies Won' }
                     ]" :key="stat.label" class="text-center text-white relative flex flex-col items-center border-white/20 last:border-0 lg:border-r border-white/20">
-                        <div class="text-6xl font-black mb-6 tracking-tighter">{{ stat.val }}</div>
+                        <div class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tighter">{{ stat.val }}</div>
                         <div class="w-16 h-1.5 bg-white rounded-full mb-6 drop-shadow-md"></div>
                         <div class="text-xl font-bold tracking-wide opacity-95">{{ stat.label }}</div>
                     </div>
@@ -438,7 +499,7 @@ const testimonials = [
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-20">
                 <p class="text-red-600 font-extrabold uppercase tracking-widest text-sm mb-4">Who We Train</p>
-                <h2 class="text-6xl font-bold text-[#0f172a] mb-8">Built For Every Cricketer</h2>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#0f172a] mb-8">Built For Every Cricketer</h2>
                 <p class="text-slate-500 text-xl max-w-3xl mx-auto leading-relaxed">
                     Whether you're 9 years old holding a bat for the first time, or a seasoned club cricketer 
                     <span class="relative inline-block">
@@ -541,7 +602,7 @@ const testimonials = [
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
                 <p class="text-[#FF0F20] font-extrabold uppercase tracking-widest text-sm mb-4">What They're Saying</p>
-                <h2 class="text-6xl font-bold text-white mb-6 tracking-tight">From the Players</h2>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 tracking-tight">From the Players</h2>
                 <p class="text-slate-400 text-xl max-w-3xl mx-auto leading-relaxed">
                     At PlayCricket, we use professional coaching and state-of-the-art facilities to simplify your training, 
                     boost performance, and help you make smarter, faster game-day decisions.
@@ -606,7 +667,7 @@ const testimonials = [
                 
                 <div class="relative z-10 px-6">
                     <p class="text-[#FF0F20] font-extrabold uppercase tracking-widest text-lg mb-4">Ready to Train?</p>
-                    <h2 class="text-6xl font-black text-white mb-6 tracking-tight">Your Next Session Starts Here.</h2>
+                    <h2 class="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-6 tracking-tight">Your Next Session Starts Here.</h2>
                     <p class="text-white text-xl max-w-2xl mx-auto mb-10 opacity-95">
                         Lanes available 7 days a week. Online booking takes less than 2 minutes.
                     </p>
