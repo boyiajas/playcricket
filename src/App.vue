@@ -10,6 +10,7 @@ import CampaignManager from './components/CampaignManager.vue';
 import AuditTrail from './components/AuditTrail.vue';
 import Login from './components/Login.vue';
 import Register from './components/Register.vue';
+import ContactUs from './components/ContactUs.vue';
 import { api } from './services/api';
 import { MOCK_AUDIT_LOGS, MOCK_BOOKINGS, MOCK_CAMPAIGNS, MOCK_CHATS, MOCK_MEMBERS, MOCK_USERS } from './services/mockData';
 import { Role } from './types';
@@ -139,7 +140,12 @@ const visibleBookings = computed(() => {
       @login="currentView = 'login'" 
       @back="currentView = 'landing'" 
     />
-    <LandingPage v-else @login="currentView = 'login'" />
+    <ContactUs 
+      v-else-if="currentView === 'contact'" 
+      @login="currentView = 'login'" 
+      @back="currentView = 'landing'" 
+    />
+    <LandingPage v-else @login="currentView = 'login'" @contact="currentView = 'contact'" />
   </div>
   
   <div v-else class="flex bg-slate-50 min-h-screen font-sans text-slate-900 overflow-x-hidden">

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const emit = defineEmits(['login']);
+const emit = defineEmits(['login', 'contact']);
 const isMobileMenuOpen = ref(false);
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
@@ -176,7 +176,7 @@ const testimonials = [
             <a href="#lanes" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Lanes</a>
             <a href="#coaching" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Coaching</a>
             <a href="#academy" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Academy</a>
-            <a href="#contact" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Contact</a>
+            <a href="#" @click.prevent="$emit('contact')" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Contact</a>
             <button
                 @click="$emit('login')"
                 class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-md hover:shadow-lg transform active:scale-95"
@@ -219,7 +219,7 @@ const testimonials = [
                     <a href="#lanes" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Lanes</a>
                     <a href="#coaching" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Coaching</a>
                     <a href="#academy" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Academy</a>
-                    <a href="#contact" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors mb-4">Contact</a>
+                    <a href="#" @click.prevent="closeMobileMenu(); $emit('contact');" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors mb-4">Contact</a>
                     
                     <button 
                         @click="handleMobileLogin" 
@@ -435,36 +435,42 @@ const testimonials = [
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-0">
-                <!-- Coach 1: Mike Thompson -->
-                <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
-                    <div class="pt-10 pb-4 text-center">
-                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Mike Thompson</h3>
-                        <p class="text-[#FF0F20] font-extrabold text-xs uppercase tracking-widest">Head Coach</p>
+                <!-- Coach 1: Placeholder -->
+                <div class="bg-slate-50/30 rounded-[3rem] border-2 border-dashed border-slate-200 p-0 shadow-none hover:shadow-lg transition-all duration-500 flex flex-col items-center opacity-80 backdrop-blur-sm min-h-[400px]">
+                    <div class="pt-16 pb-4 text-center">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-200 text-slate-300 shadow-inner">
+                            <svg class="w-8 h-8 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-400 mb-2">More Pros</h3>
+                        <p class="text-slate-300 font-extrabold text-xs uppercase tracking-widest">Coming Soon</p>
                     </div>
-                    <div class="w-full mt-auto flex justify-center px-6">
-                        <img src="/images/coach-mike.png" class="w-full h-auto object-contain transform group-hover:scale-110 transition-transform duration-700" alt="Mike Thompson">
-                    </div>
-                </div>
-
-                <!-- Coach 2: Tom Harris -->
-                <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
-                    <div class="pt-10 pb-4 text-center">
-                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Tom Harris</h3>
-                        <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Batting Coach</p>
-                    </div>
-                    <div class="w-full mt-auto flex justify-center px-6">
-                        <img src="/images/coach-tom.png" class="w-full h-auto object-contain transform group-hover:scale-110 transition-transform duration-700" alt="Tom Harris">
+                    <div class="w-full mt-auto h-48 flex justify-center items-end px-8 pb-8">
+                        <div class="w-full h-full bg-gradient-to-t from-slate-100 to-transparent rounded-t-[3rem] opacity-50 border-t-2 border-white/60"></div>
                     </div>
                 </div>
 
-                <!-- Coach 3: Ryan Davies -->
+                <!-- Coach 2: Coach Lazarus -->
                 <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
                     <div class="pt-10 pb-4 text-center">
-                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Ryan Davies</h3>
-                        <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Bowling Coach</p>
+                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Lazarus Mokeona</h3>
+                        <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Head Coach</p>
                     </div>
-                    <div class="w-full mt-auto flex justify-center px-6">
-                        <img src="/images/coach-ryan.png" class="w-full h-auto object-contain transform group-hover:scale-110 transition-transform duration-700" alt="Ryan Davies">
+                    <div class="w-full mt-auto flex justify-center h-80">
+                        <img src="/images/coach-lazarus.jpg" class="w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700" alt="Coach Lazarus">
+                    </div>
+                </div>
+
+                <!-- Coach 3: Placeholder -->
+                <div class="bg-slate-50/30 rounded-[3rem] border-2 border-dashed border-slate-200 p-0 shadow-none hover:shadow-lg transition-all duration-500 flex flex-col items-center opacity-80 backdrop-blur-sm min-h-[400px]">
+                    <div class="pt-16 pb-4 text-center">
+                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-200 text-slate-300 shadow-inner">
+                            <svg class="w-8 h-8 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-slate-400 mb-2">New Specialist</h3>
+                        <p class="text-slate-300 font-extrabold text-xs uppercase tracking-widest">Coming Soon</p>
+                    </div>
+                    <div class="w-full mt-auto h-48 flex justify-center items-end px-8 pb-8">
+                        <div class="w-full h-full bg-gradient-to-t from-slate-100 to-transparent rounded-t-[3rem] opacity-50 border-t-2 border-white/60"></div>
                     </div>
                 </div>
             </div>
@@ -672,10 +678,10 @@ const testimonials = [
                         Lanes available 7 days a week. Online booking takes less than 2 minutes.
                     </p>
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <button class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-4 px-10 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
+                        <button @click="$emit('login')" class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-4 px-10 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
                             Book Your Slot Now
                         </button>
-                        <button class="bg-transparent border-2 border-white hover:bg-white/10 text-white font-bold py-4 px-10 rounded-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
+                        <button @click="$emit('contact')" class="bg-transparent border-2 border-white hover:bg-white/10 text-white font-bold py-4 px-10 rounded-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
                             Contact Us
                         </button>
                     </div>
@@ -737,21 +743,24 @@ const testimonials = [
                 <div>
                     <h3 class="text-xl font-bold text-[#0f172a] mb-8">Visit Us</h3>
                     <div class="space-y-6">
-                        <div class="flex items-center gap-4 group">
-                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">📍</span>
-                            <span class="text-slate-500 text-sm font-medium">123 Cricket Lane</span>
+                        <div class="flex items-start gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📍</span>
+                            <span class="text-slate-500 text-sm font-medium leading-relaxed">Unit 8, 9 Arbied Street,<br/>Strijdom Park, Randburg, 2194</span>
                         </div>
                         <div class="flex items-center gap-4 group">
-                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">📞</span>
-                            <span class="text-slate-500 text-sm font-medium">+61 400 000 000</span>
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0">📞</span>
+                            <a href="tel:0618844217" class="text-slate-500 hover:text-[#FF0F20] text-sm font-medium transition-colors">061 884 4217</a>
+                        </div>
+                        <div class="flex items-start gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📧</span>
+                            <div class="flex flex-col text-slate-500 text-sm font-medium gap-1">
+                                <a href="mailto:info@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">info@playcricket.co.za</a>
+                                <a href="mailto:lazarus@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">lazarus@playcricket.co.za</a>
+                            </div>
                         </div>
                         <div class="flex items-center gap-4 group">
-                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">📧</span>
-                            <span class="text-slate-500 text-sm font-medium">hello@playcricket.com</span>
-                        </div>
-                        <div class="flex items-center gap-4 group">
-                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors">⏰</span>
-                            <span class="text-slate-500 text-sm font-medium">Mon–Fri: 6am–9pm</span>
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0">⏰</span>
+                            <span class="text-slate-500 text-sm font-medium">Mon-Sun 6am-9pm</span>
                         </div>
                     </div>
                 </div>
