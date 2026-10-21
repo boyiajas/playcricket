@@ -11,35 +11,68 @@ class ReportController extends Controller
 {
     public function index()
     {
-        // Daily Stats (Today)
-        $daily = Booking::whereDate('date', Carbon::today())
-            ->selectRaw('count(*) as total_bookings, sum(duration_hours * 100) as revenue') // Assuming 100 per hour
+        if (!\Illuminate\Support\Facades\Schema::hasTable('bookings')) {
+            return response()->json([
+                'daily' => ['bookings' => 0, 'revenue' => 0],
+                'weekly' => ['bookings' => 0, 'revenue' => 0],
+                'monthly' => ['bookings' => 0, 'revenue' => 0],
+                'total_bookings' => 0,
+                'active_pitches' => 0,
+            ]);
+        }
+
+        $today = Carbon::today();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // Daily Stats (Today, excluding cancelled)
+        $daily = Booking::whereDate('date', $today)
+            ->where('status', '!=', 'CANCELLED')
+            ->selectRaw('count(*) as total_bookings, COALESCE(sum(COALESCE(amount, duration_hours * 350)), 0) as revenue')
             ->first();
 
-        // Weekly Stats (This Week)
-        $weekly = Booking::whereBetween('date', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])
-            ->selectRaw('count(*) as total_bookings, sum(duration_hours * 100) as revenue')
+        // Weekly Stats (This Week, excluding cancelled)
+        $weekly = Booking::whereBetween('date', [$startOfWeek, $endOfWeek])
+            ->where('status', '!=', 'CANCELLED')
+            ->selectRaw('count(*) as total_bookings, COALESCE(sum(COALESCE(amount, duration_hours * 350)), 0) as revenue')
             ->first();
 
-        // Monthly Stats (This Month)
-        $monthly = Booking::whereMonth('date', Carbon::now()->month)
-            ->whereYear('date', Carbon::now()->year)
-            ->selectRaw('count(*) as total_bookings, sum(duration_hours * 100) as revenue')
+        // Monthly Stats (This Month, excluding cancelled)
+        $monthly = Booking::whereMonth('date', $currentMonth)
+            ->whereYear('date', $currentYear)
+            ->where('status', '!=', 'CANCELLED')
+            ->selectRaw('count(*) as total_bookings, COALESCE(sum(COALESCE(amount, duration_hours * 350)), 0) as revenue')
             ->first();
+
+        // Active Pitches / Facilities Booked Today
+        $activePitches = Booking::whereDate('date', $today)
+            ->where('status', '!=', 'CANCELLED')
+            ->distinct('facility')
+            ->count('facility');
+
+        $totalBookings = Booking::where('status', '!=', 'CANCELLED')->count();
+        $confirmedBookings = Booking::where('status', 'CONFIRMED')->count();
+        $pendingBookings = Booking::where('status', 'PENDING')->count();
 
         return response()->json([
             'daily' => [
-                'bookings' => $daily->total_bookings ?? 0,
-                'revenue' => $daily->revenue ?? 0
+                'bookings' => (int)($daily->total_bookings ?? 0),
+                'revenue' => (float)($daily->revenue ?? 0),
             ],
             'weekly' => [
-                'bookings' => $weekly->total_bookings ?? 0,
-                'revenue' => $weekly->revenue ?? 0
+                'bookings' => (int)($weekly->total_bookings ?? 0),
+                'revenue' => (float)($weekly->revenue ?? 0),
             ],
             'monthly' => [
-                'bookings' => $monthly->total_bookings ?? 0,
-                'revenue' => $monthly->revenue ?? 0
-            ]
+                'bookings' => (int)($monthly->total_bookings ?? 0),
+                'revenue' => (float)($monthly->revenue ?? 0),
+            ],
+            'total_bookings' => $totalBookings,
+            'confirmed_bookings' => $confirmedBookings,
+            'pending_bookings' => $pendingBookings,
+            'active_pitches' => $activePitches,
         ]);
     }
 }

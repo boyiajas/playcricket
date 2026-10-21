@@ -23,10 +23,11 @@ const cells = computed(() => {
     list.push({ key: `empty-${i}` });
   }
 
+  const now = new Date();
   for (let d = 1; d <= daysInMonth.value; d += 1) {
     const dateStr = `${props.year}-${String(props.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const dayBookings = props.bookings.filter((b) => b.date === dateStr);
-    const isToday = props.year === 2023 && props.month === 9 && d === 28;
+    const isToday = props.year === now.getFullYear() && props.month === now.getMonth() && d === now.getDate();
     list.push({ key: dateStr, date: dateStr, day: d, bookings: dayBookings, isToday });
   }
   return list;
@@ -60,12 +61,14 @@ const selectBooking = (booking) => {
           <div class="flex justify-between items-start">
             <span
               class="text-xs md:text-sm font-semibold w-6 h-6 md:w-7 md:h-7 flex items-center justify-center rounded-full"
-              :class="cell.isToday ? 'bg-blue-600 text-white shadow-md' : 'text-slate-700'"
+              :class="cell.isToday ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-200' : 'text-slate-700'"
             >
               {{ cell.day }}
             </span>
             <button
               class="hidden md:flex opacity-0 group-hover:opacity-100 text-emerald-600 bg-emerald-100 hover:bg-emerald-200 w-5 h-5 md:w-6 md:h-6 rounded-full items-center justify-center text-lg leading-none transition-all shadow-sm transform hover:scale-110"
+              title="Book on this day"
+              @click.stop="selectDate(cell.date)"
             >
               +
             </button>
@@ -76,10 +79,12 @@ const selectBooking = (booking) => {
               :key="booking.id"
               class="text-[8px] md:text-[10px] px-1 md:px-1.5 py-0.5 md:py-1 rounded border truncate shadow-sm cursor-pointer hover:ring-1 hover:ring-emerald-400"
               :class="booking.status === 'CONFIRMED' ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-orange-50 text-orange-800 border-orange-200'"
+              :title="`${booking.facility} - ${booking.startTime || booking.start_time || ''} (${booking.status})`"
               @click.stop="selectBooking(booking)"
             >
-              <span class="font-bold hidden md:inline">{{ booking.startTime }} </span>
-              {{ booking.facility }}
+              <span class="font-bold hidden md:inline">{{ booking.startTime || booking.start_time }} </span>
+              <span>{{ booking.facility }}</span>
+              <span v-if="booking.lane" class="ml-0.5 text-[7px] md:text-[8px] opacity-75">({{ booking.lane }})</span>
             </div>
           </div>
         </template>

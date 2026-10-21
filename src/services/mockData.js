@@ -13,10 +13,19 @@ export const MOCK_MEMBERS = [
   { id: 'm3', name: 'Local Cricket Club', phone: '+1122334455', email: 'contact@lcc.com', membershipType: 'Standard', tags: ['Team Booking'] },
 ];
 
+const formatDateOffset = (days) => {
+  const d = new Date();
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+};
+
 export const MOCK_BOOKINGS = [
-  { id: 'b1', memberId: 'm1', facility: 'Pitch 1', date: '2023-10-28', startTime: '09:00', durationHours: 4, status: BookingStatus.CONFIRMED, syncedToGoogle: true },
-  { id: 'b2', memberId: 'm2', facility: 'Indoor Nets', date: '2023-10-28', startTime: '14:00', durationHours: 2, status: BookingStatus.CONFIRMED, syncedToGoogle: false },
-  { id: 'b3', memberId: 'm3', facility: 'Pitch 2', date: '2023-10-29', startTime: '10:00', durationHours: 6, status: BookingStatus.PENDING, syncedToGoogle: false },
+  { id: 'b1', memberId: 'm1', facility: 'Pitch 1', date: formatDateOffset(0), startTime: '09:00', durationHours: 3, status: BookingStatus.CONFIRMED, payment_status: 'PAID', lane: 'Lane 1', ageGroup: 'Under 13', playerName: 'Aarav K.', syncedToGoogle: true },
+  { id: 'b2', memberId: 'm2', facility: 'Indoor Nets', date: formatDateOffset(0), startTime: '14:00', durationHours: 2, status: BookingStatus.CONFIRMED, payment_status: 'PAID', lane: 'Lane 2', ageGroup: 'Above 13', playerName: 'Jasprit B.', syncedToGoogle: false },
+  { id: 'b3', memberId: 'm1', facility: 'Bowling Machine', date: formatDateOffset(0), startTime: '16:30', durationHours: 1, status: BookingStatus.PENDING, payment_status: 'UNPAID', lane: 'Lane 1', ageGroup: 'Under 13', playerName: 'Rohan S.', syncedToGoogle: false },
+  { id: 'b4', memberId: 'm3', facility: 'Pitch 2', date: formatDateOffset(1), startTime: '10:00', durationHours: 4, status: BookingStatus.CONFIRMED, payment_status: 'PAID', lane: 'Lane 2', ageGroup: 'Above 13', playerName: 'Local CC XI', syncedToGoogle: false },
+  { id: 'b5', memberId: 'm1', facility: 'Indoor Nets', date: formatDateOffset(2), startTime: '11:00', durationHours: 2, status: BookingStatus.CONFIRMED, payment_status: 'PAID', lane: 'Lane 1', ageGroup: 'Under 13', playerName: 'Virat K.', syncedToGoogle: false },
+  { id: 'b6', memberId: 'm2', facility: 'Pitch 1', date: formatDateOffset(-1), startTime: '15:00', durationHours: 2, status: BookingStatus.COMPLETED, payment_status: 'PAID', lane: 'Lane 2', ageGroup: 'Above 13', playerName: 'Jasprit B.', syncedToGoogle: false },
 ];
 
 export const MOCK_CAMPAIGNS = [

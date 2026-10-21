@@ -3,8 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayCricket</title>
+    <title>PlayCricket — Indoor Cricket Nets, Coaching & Lane Hire</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Edward AI SEO Verification & Script Integration -->
+    <meta name="edward-site-verification" content="{{ config('services.edward.site_id', env('EDWARD_SITE_ID', '2563d695-bf11-43cd-861c-13ce2cd6b015')) }}">
+    <script defer src="https://cdn.meetedward.com/edward.js" data-site="{{ config('services.edward.site_id', env('EDWARD_SITE_ID', '2563d695-bf11-43cd-861c-13ce2cd6b015')) }}"></script>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="PlayCricket South Africa — Premier Indoor Cricket Lanes, Bowling Machines, Junior Coaching (R450/hr), Senior Coaching (R600/hr) and Lane Hire (R350/hr). Instant Online Booking.">
+    <link rel="canonical" href="{{ url('/') }}">
+    <meta property="og:title" content="PlayCricket — Indoor Cricket Nets, Coaching & Lane Hire">
+    <meta property="og:description" content="Book professional cricket lanes (R350/hr), junior coaching (R450/hr) and senior coaching (R600/hr) instantly online.">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:site_name" content="PlayCricket">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>

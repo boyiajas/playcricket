@@ -112,7 +112,6 @@ const handleLogout = () => {
   currentUser.value = null;
   localStorage.removeItem('playcricket_user');
   localStorage.removeItem('playcricket_tab');
-  localStorage.removeItem('playcricket_tab');
   currentView.value = 'landing'; // Reset to landing page
 };
 
@@ -188,7 +187,7 @@ const visibleBookings = computed(() => {
       </header>
 
       <div class="mx-auto">
-        <Dashboard v-if="activeTab === 'dashboard'" :bookings="visibleBookings" :campaigns="campaigns" :members="members" />
+        <Dashboard v-if="activeTab === 'dashboard'" :bookings="visibleBookings" :campaigns="campaigns" :members="members" @navigate="activeTab = $event" />
         <BookingSystem v-else-if="activeTab === 'bookings'" :initial-bookings="visibleBookings" :members="members" :member-id="memberId" />
         <MemberList v-else-if="activeTab === 'members'" :members="members" />
         <CampaignManager v-else-if="activeTab === 'campaigns'" :campaigns="campaigns" />

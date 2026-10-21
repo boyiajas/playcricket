@@ -11,5 +11,52 @@ class Booking extends Model
     protected $casts = [
         'date' => 'date',
         'duration_hours' => 'integer',
+        'rate' => 'float',
+        'amount' => 'float',
     ];
+
+    /**
+     * Official PlayCricket Pricing:
+     * A) Lane hire: R350
+     * B) Junior Coaching: R450
+     * C) Senior Coaching: R600
+     */
+    public static function calculateRate(?string $facility = '', ?string $ageGroup = null): float
+    {
+        $facilityLower = strtolower($facility ?? '');
+
+        // Senior Coaching: R600
+        if (
+            str_contains($facilityLower, 'senior') || 
+            str_contains($facilityLower, 'private') || 
+            (str_contains($facilityLower, 'coach') && $ageGroup === 'Above 13')
+        ) {
+            return 600.00;
+        }
+
+        // Junior Coaching: R450
+        if (
+            str_contains($facilityLower, 'junior') || 
+            str_contains($facilityLower, 'academy') || 
+            (str_contains($facilityLower, 'coach') && $ageGroup === 'Under 13')
+        ) {
+            return 450.00;
+        }
+
+        // Lane hire (Pitch 1, Pitch 2, Indoor Nets, Bowling Machine): R350
+        return 350.00;
+    }
+
+    protected static function booted()
+    {
+        static::creating(function ($booking) {
+            if (empty($booking->rate)) {
+                $booking->rate = self::calculateRate($booking->facility, $booking->age_group);
+            }
+            if (empty($booking->amount)) {
+                $duration = (float) ($booking->duration_hours ?: 1);
+                $booking->amount = round($booking->rate * $duration, 2);
+            }
+        });
+    }
 }

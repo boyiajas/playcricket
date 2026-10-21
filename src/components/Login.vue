@@ -1,7 +1,24 @@
 <script setup lang="js">
+import { ref } from 'vue';
 import { Role } from '../types';
 
 const emit = defineEmits(['login', 'back', 'register']);
+
+const email = ref('');
+const password = ref('');
+
+const handleCustomLogin = () => {
+  const e = email.value.trim().toLowerCase();
+  if (e.includes('admin') || e.includes('carter')) {
+    emit('login', Role.SUPER_ADMIN);
+  } else if (e.includes('gary') || e.includes('manager')) {
+    emit('login', Role.MANAGER);
+  } else if (e.includes('sarah') || e.includes('staff')) {
+    emit('login', Role.STAFF);
+  } else {
+    emit('login', Role.MEMBER);
+  }
+};
 </script>
 
 <template>
@@ -29,10 +46,11 @@ const emit = defineEmits(['login', 'back', 'register']);
         <p class="text-sm text-slate-500">Facility Management Login</p>
       </div>
 
-      <div class="space-y-4">
+      <form @submit.prevent="handleCustomLogin" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">Email</label>
           <input
+            v-model="email"
             type="email"
             class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
             placeholder="coach@playcricket.com"
@@ -41,44 +59,56 @@ const emit = defineEmits(['login', 'back', 'register']);
         <div>
           <label class="block text-xs font-medium text-slate-700 mb-1">Password</label>
           <input
+            v-model="password"
             type="password"
             class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
             placeholder="••••••••"
           />
         </div>
 
+        <button
+          type="submit"
+          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-lg shadow-md transition-all active:scale-[0.99] text-sm"
+        >
+          Sign In
+        </button>
+
         <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center">
-          <p class="text-[10px] text-slate-500 mb-2 uppercase font-bold tracking-wider">Simulate Role</p>
+          <p class="text-[10px] text-slate-500 mb-2 uppercase font-bold tracking-wider">Quick Demo Login as Role</p>
           <div class="grid grid-cols-2 gap-2">
             <button
-              class="px-3 py-1.5 bg-purple-600 text-white text-[10px] rounded hover:bg-purple-700 font-bold uppercase"
+              type="button"
+              class="px-3 py-1.5 bg-purple-600 text-white text-[10px] rounded hover:bg-purple-700 font-bold uppercase shadow-sm"
               @click="emit('login', Role.SUPER_ADMIN)"
             >
               Admin
             </button>
             <button
-              class="px-3 py-1.5 bg-blue-600 text-white text-[10px] rounded hover:bg-blue-700 font-bold uppercase"
+              type="button"
+              class="px-3 py-1.5 bg-blue-600 text-white text-[10px] rounded hover:bg-blue-700 font-bold uppercase shadow-sm"
               @click="emit('login', Role.MANAGER)"
             >
               Manager
             </button>
             <button
-              class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] rounded hover:bg-emerald-700 font-bold uppercase"
+              type="button"
+              class="px-3 py-1.5 bg-emerald-600 text-white text-[10px] rounded hover:bg-emerald-700 font-bold uppercase shadow-sm"
               @click="emit('login', Role.STAFF)"
             >
               Staff
             </button>
             <button
-              class="px-3 py-1.5 bg-orange-500 text-white text-[10px] rounded hover:bg-orange-600 font-bold uppercase"
+              type="button"
+              class="px-3 py-1.5 bg-orange-500 text-white text-[10px] rounded hover:bg-orange-600 font-bold uppercase shadow-sm"
               @click="emit('login', Role.MEMBER)"
             >
               Member
             </button>
           </div>
         </div>
-        </div>
+      </form>
 
-        <div class="text-center mt-4">
+      <div class="text-center mt-4">
             <p class="text-sm text-slate-600">
                 Don't have an account? 
                 <button @click="emit('register')" class="text-emerald-600 font-bold hover:underline">Register</button>

@@ -22,71 +22,166 @@ const props = defineProps({
 
 const activeView = ref('calendar');
 
-const normalizeBooking = (b) => ({
-  ...b,
-  memberId: b.memberId || b.member_id || 'guest',
-  startTime: b.startTime || b.start_time || '',
-  durationHours: b.durationHours ?? b.duration_hours ?? b.duration ?? 1,
-  date: b.date ? String(b.date).slice(0, 10) : '',
-  payment_status: b.payment_status || b.paymentStatus || 'UNPAID',
-  status: b.status || 'PENDING',
-});
+const calculateServiceRate = (facility, ageGroup) => {
+  const f = (facility || '').toLowerCase();
+  if (f.includes('senior') || f.includes('private') || (f.includes('coach') && ageGroup === 'Above 13')) {
+    return 600;
+  }
+  if (f.includes('junior') || f.includes('academy') || (f.includes('coach') && ageGroup === 'Under 13')) {
+    return 450;
+  }
+  return 350; // Lane Hire (Pitch 1, Pitch 2, Bowling Machine, Indoor Nets)
+};
+
+const normalizeBooking = (b) => {
+  const facility = b.facility || 'Pitch 1';
+  const ageGroup = b.ageGroup || b.age_group || 'Under 13';
+  const duration = b.durationHours ?? b.duration_hours ?? b.duration ?? 1;
+  const rate = b.rate || calculateServiceRate(facility, ageGroup);
+  const amount = b.amount || (rate * duration);
+
+  return {
+    ...b,
+    id: b.id,
+    memberId: b.memberId || b.member_id || 'guest',
+    facility: facility,
+    startTime: b.startTime || b.start_time || '',
+    durationHours: duration,
+    rate: rate,
+    amount: amount,
+    date: b.date ? String(b.date).slice(0, 10) : '',
+    payment_status: b.payment_status || b.paymentStatus || 'UNPAID',
+    status: b.status || 'PENDING',
+    lane: b.lane || (ageGroup === 'Under 13' ? 'Lane 1' : 'Lane 2'),
+    ageGroup: ageGroup,
+    playerName: b.playerName || b.player_name || '',
+  };
+};
 
 const bookings = ref(
   (props.initialBookings && props.initialBookings.length ? [...props.initialBookings] : []).map(normalizeBooking)
 );
+
+const displayMembers = computed(() => {
+  return props.members && props.members.length ? props.members : MOCK_MEMBERS;
+});
+
 const showModal = ref(false);
 const showExistingModal = ref(false);
-const currentDate = ref({ year: 2023, month: 9 });
+const editableBooking = ref(null);
+
+const now = new Date();
+const currentDate = ref({ year: now.getFullYear(), month: now.getMonth() });
+
+const currentMonthLabel = computed(() => {
+  const d = new Date(currentDate.value.year, currentDate.value.month, 1);
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+});
+
 const cart = ref([]);
-const newBooking = ref({ date: '', time: '10:00', facility: 'Pitch 1', duration: 1, ageGroup: 'Under 13', playerName: '' });
+const newBooking = ref({
+  date: new Date().toISOString().split('T')[0],
+  time: '10:00',
+  facility: 'Lane Hire - Pitch 1',
+  duration: 1,
+  ageGroup: 'Under 13',
+  playerName: ''
+});
+
+const currentRate = computed(() => {
+  return calculateServiceRate(newBooking.value.facility, newBooking.value.ageGroup);
+});
+
+const currentTotal = computed(() => {
+  return currentRate.value * (parseInt(newBooking.value.duration, 10) || 1);
+});
+
+const cartTotal = computed(() => {
+  return cart.value.reduce((sum, item) => sum + (item.amount || (calculateServiceRate(item.facility, item.ageGroup) * (item.duration || 1))), 0);
+});
 
 const addToCart = () => {
-    cart.value.push({ ...newBooking.value, id: Date.now() });
-    showModal.value = false;
-    // Reset for next
-    newBooking.value = { ...newBooking.value, time: '10:00', playerName: '' }; 
+  const rate = calculateServiceRate(newBooking.value.facility, newBooking.value.ageGroup);
+  const duration = parseInt(newBooking.value.duration, 10) || 1;
+  const amount = rate * duration;
+  cart.value.push({ 
+    ...newBooking.value, 
+    rate,
+    amount,
+    id: Date.now() 
+  });
+  showModal.value = false;
+  // Reset for next entry
+  newBooking.value = { ...newBooking.value, time: '10:00', playerName: '' }; 
 };
 
 const removeFromCart = (index) => {
-    cart.value.splice(index, 1);
+  cart.value.splice(index, 1);
+};
+
+const handleDateClick = (date) => {
+  newBooking.value.date = date;
+  showModal.value = true;
+};
+
+const handleBookingClick = (booking) => {
+  editableBooking.value = { ...booking };
+  showExistingModal.value = true;
+};
+
+const submitPaymentForm = (url, data) => {
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = url;
+  for (const [key, val] of Object.entries(data)) {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = val;
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
 };
 
 const handleBook = async (payNow = false) => {
   if (cart.value.length === 0) return;
 
   try {
-      const results = [];
-      // Process all items in cart
-      for (const item of cart.value) {
-          const bookingData = {
-            memberId: props.memberId || 'm1',
-            facility: item.facility,
-            date: item.date,
-            startTime: item.time,
-            durationHours: item.duration,
-            ageGroup: item.ageGroup,
-            playerName: item.playerName,
-            payNow: payNow
-          };
-          
-          const response = await api.createBooking(bookingData);
-          results.push(response);
-          bookings.value.push(normalizeBooking(response.booking));
-      }
+    const results = [];
+    for (const item of cart.value) {
+      const rate = calculateServiceRate(item.facility, item.ageGroup);
+      const duration = parseInt(item.duration, 10) || 1;
+      const amount = item.amount || (rate * duration);
 
-      // Handle Payment Redirect (if any payNow was selected, we might need a bulk flow, 
-      // but for now let's just use the last one's payment link or assume individual processing)
-      // *Improvement*: The backend 'payFastService' generates a form for ONE booking. 
-      // For multiple, we'd ideally aggregate. For MVP, we'll redirect for the FIRST payNow item found.
-      const paymentItem = results.find(r => r.payment_data);
+      const bookingData = {
+        memberId: props.memberId || 'm1',
+        facility: item.facility,
+        date: item.date,
+        startTime: item.time,
+        durationHours: duration,
+        rate: rate,
+        amount: amount,
+        ageGroup: item.ageGroup,
+        playerName: item.playerName,
+        payNow: payNow
+      };
       
-      if (payNow && paymentItem) {
-        submitPaymentForm(paymentItem.payment_data.url, paymentItem.payment_data.data);
-      } else {
-        alert('All bookings reserved successfully!');
-        cart.value = [];
+      const response = await api.createBooking(bookingData);
+      results.push(response);
+      if (response && response.booking) {
+        bookings.value.unshift(normalizeBooking(response.booking));
       }
+    }
+
+    const paymentItem = results.find(r => r.payment_data);
+    
+    if (payNow && paymentItem) {
+      submitPaymentForm(paymentItem.payment_data.url, paymentItem.payment_data.data);
+    } else {
+      alert('All bookings reserved successfully!');
+      cart.value = [];
+    }
 
   } catch (error) {
     console.error('Booking failed', error);
@@ -94,7 +189,10 @@ const handleBook = async (payNow = false) => {
   }
 };
 
-const myBookings = computed(() => bookings.value.filter((b) => b.memberId === props.memberId || b.member_id === props.memberId));
+const myBookings = computed(() => {
+  return bookings.value.filter((b) => (b.memberId || b.member_id) === props.memberId);
+});
+
 const pastBookings = computed(() =>
   bookings.value.filter((b) => {
     const bDate = new Date(b.date);
@@ -126,8 +224,7 @@ const downloadReceipt = (booking) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
-  const memberName = displayMembers.value.find((m) => m.id === (booking.memberId || booking.member_id))?.name || 'Guest User';
-  const memberEmail = 'member@example.com'; // Placeholder as we don't have email in member object yet
+  const memberName = displayMembers.value.find((m) => m.id === (booking.memberId || booking.member_id))?.name || (booking.playerName || 'Guest User');
 
   // --- Header ---
   doc.setFillColor(16, 185, 129); // Emerald-500
@@ -140,14 +237,14 @@ const downloadReceipt = (booking) => {
   doc.circle(logoX + 6, logoY, 6, 'F'); // Ball
   doc.setDrawColor(255, 255, 255);
   doc.setLineWidth(0.5);
-  doc.line(logoX + 4, logoY - 5, logoX + 8, logoY + 5); // Simple seam representation
+  doc.line(logoX + 4, logoY - 5, logoX + 8, logoY + 5);
   doc.line(logoX + 3, logoY - 4, logoX + 9, logoY + 4); 
 
   // Logo Text
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
-  doc.text('PlayCricket', logoX + 16, logoY + 2); // Offset for text
+  doc.text('PlayCricket', logoX + 16, logoY + 2);
 
   // Receipt Title
   doc.setFontSize(16);
@@ -174,18 +271,25 @@ const downloadReceipt = (booking) => {
   doc.text(`Receipt #: ${String(booking.id).toUpperCase()}`, pageWidth - 80, 60);
   doc.text(`Date: ${new Date().toLocaleDateString()}`, pageWidth - 80, 65);
   
-  // Payment Status Badge (Text based)
+  // Payment Status Badge
   const payStatus = (booking.payment_status || 'UNPAID').toUpperCase();
   doc.setTextColor(payStatus === 'PAID' ? 16 : 220, payStatus === 'PAID' ? 185 : 38, payStatus === 'PAID' ? 129 : 38);
   doc.setFont('helvetica', 'bold');
   doc.text(payStatus, pageWidth - 20, 60, { align: 'right' });
+
+  const ratePerHour = booking.rate || calculateServiceRate(booking.facility, booking.ageGroup || booking.age_group);
+  const totalAmount = booking.amount || (ratePerHour * (booking.durationHours || booking.duration_hours || 1));
 
   // --- Table ---
   const tableData = [
     ['Facility / Service', booking.facility],
     ['Scheduled Date', booking.date],
     ['Time Slot', booking.startTime || booking.start_time],
+    ['Lane / Area', booking.lane || 'Main'],
+    ['Player Name', booking.playerName || booking.player_name || memberName],
     ['Duration', `${booking.durationHours || booking.duration_hours || 1} hour(s)`],
+    ['Hourly Rate', `R ${ratePerHour}.00`],
+    ['Total Amount', `R ${totalAmount}.00`],
     ['Booking Status', booking.status],
     ['Transaction ID', booking.payment_id || 'N/A']
   ];
@@ -205,10 +309,10 @@ const downloadReceipt = (booking) => {
 
   // --- Footer ---
   const footerY = pageHeight - 30;
-  doc.setFillColor(249, 250, 251); // Gray-50
+  doc.setFillColor(249, 250, 251);
   doc.rect(0, footerY, pageWidth, 30, 'F');
   
-  doc.setTextColor(156, 163, 175); // Gray-400
+  doc.setTextColor(156, 163, 175);
   doc.setFontSize(10);
   doc.text('Thank you for booking with PlayCricket!', pageWidth / 2, footerY + 12, { align: 'center' });
   
@@ -218,19 +322,62 @@ const downloadReceipt = (booking) => {
   doc.save(`receipt-${booking.id}.pdf`);
 };
 
-const saveExisting = () => {
+const saveExisting = async () => {
   if (!editableBooking.value) return;
-  const idx = bookings.value.findIndex((b) => b.id === editableBooking.value.id);
-  if (idx !== -1) {
-    bookings.value[idx] = normalizeBooking(editableBooking.value);
+  try {
+    const rate = calculateServiceRate(editableBooking.value.facility, editableBooking.value.ageGroup || editableBooking.value.age_group);
+    const duration = editableBooking.value.durationHours || editableBooking.value.duration_hours || 1;
+    const amount = rate * duration;
+
+    const payload = {
+      facility: editableBooking.value.facility,
+      date: editableBooking.value.date,
+      startTime: editableBooking.value.startTime || editableBooking.value.start_time,
+      durationHours: duration,
+      rate: rate,
+      amount: amount,
+      status: editableBooking.value.status,
+      payment_status: editableBooking.value.payment_status,
+      ageGroup: editableBooking.value.ageGroup || editableBooking.value.age_group,
+      playerName: editableBooking.value.playerName || editableBooking.value.player_name,
+    };
+    const response = await api.updateBooking(editableBooking.value.id, payload);
+    const updated = normalizeBooking(response.booking || editableBooking.value);
+    const idx = bookings.value.findIndex((b) => b.id === editableBooking.value.id);
+    if (idx !== -1) {
+      bookings.value[idx] = updated;
+    }
+  } catch (err) {
+    console.warn('Update booking failed, updating locally', err);
+    const idx = bookings.value.findIndex((b) => b.id === editableBooking.value.id);
+    if (idx !== -1) {
+      bookings.value[idx] = normalizeBooking(editableBooking.value);
+    }
   }
   showExistingModal.value = false;
 };
 
-const deleteExisting = () => {
+const deleteExisting = async () => {
   if (!editableBooking.value) return;
-  bookings.value = bookings.value.filter((b) => b.id !== editableBooking.value.id);
+  const idToDelete = editableBooking.value.id;
+  await handleCancel(idToDelete);
   showExistingModal.value = false;
+};
+
+const syncCalendar = (booking) => {
+  if (!booking) return;
+  const title = encodeURIComponent(`PlayCricket: ${booking.facility}`);
+  const details = encodeURIComponent(
+    `PlayCricket Session: ${booking.facility} (${booking.lane || 'Main'})\nStatus: ${booking.status}\nPlayer: ${booking.playerName || booking.player_name || 'Member'}`
+  );
+  const timeRaw = (booking.startTime || booking.start_time || '10:00').replace(':', '');
+  const duration = parseInt(booking.durationHours || booking.duration_hours || 1, 10);
+  const startHour = parseInt(timeRaw.slice(0, 2), 10);
+  const endHour = String(startHour + duration).padStart(2, '0');
+  const dateFormatted = (booking.date || '').replace(/-/g, '');
+  const dates = `${dateFormatted}T${timeRaw}00/${dateFormatted}T${endHour}${timeRaw.slice(2)}00`;
+  const googleCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&details=${details}&dates=${dates}`;
+  window.open(googleCalUrl, '_blank');
 };
 
 watch(
@@ -242,15 +389,44 @@ watch(
 );
 
 onMounted(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('payment') === 'success') {
-        alert('Payment successful! Your booking is confirmed.');
-        // Clean URL
-        window.history.replaceState({}, document.title, "/");
-    } else if (params.get('payment') === 'cancelled') {
-        alert('Payment was cancelled.');
-        window.history.replaceState({}, document.title, "/");
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('payment') === 'success') {
+    alert('Payment successful! Your booking is confirmed.');
+    window.history.replaceState({}, document.title, "/");
+  } else if (params.get('payment') === 'cancelled') {
+    alert('Payment was cancelled.');
+    window.history.replaceState({}, document.title, "/");
+  }
+
+  // Check if a quick booking was initiated from landing page
+  const pendingStr = localStorage.getItem('playcricket_pending_booking');
+  if (pendingStr) {
+    try {
+      const pending = JSON.parse(pendingStr);
+      let facilityName = 'Pitch 1';
+      if (pending.service?.includes('02') || pending.service?.includes('Lane 2')) {
+        facilityName = 'Pitch 2';
+      } else if (pending.service?.includes('Bowling Machine')) {
+        facilityName = 'Bowling Machine';
+      } else if (pending.service?.includes('Coaching') || pending.service?.includes('Academy')) {
+        facilityName = 'Indoor Nets';
+      }
+
+      newBooking.value = {
+        date: pending.date || new Date().toISOString().split('T')[0],
+        time: (pending.time || '10:00').split(' - ')[0] || '10:00',
+        facility: facilityName,
+        duration: 1,
+        ageGroup: pending.service?.includes('Junior') ? 'Under 13' : 'Above 13',
+        playerName: '',
+      };
+      cart.value.push({ ...newBooking.value, id: Date.now() });
+      showModal.value = true;
+      localStorage.removeItem('playcricket_pending_booking');
+    } catch (e) {
+      console.warn('Failed to parse pending booking', e);
     }
+  }
 });
 </script>
 
@@ -340,38 +516,50 @@ onMounted(() => {
         
         <!-- Cart Visualization -->
         <div v-if="cart.length > 0" class="mb-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <h4 class="font-bold text-sm text-slate-700 mb-2">Selected Slots ({{ cart.length }})</h4>
+            <div class="flex justify-between items-center mb-2">
+                <h4 class="font-bold text-sm text-slate-700">Selected Slots ({{ cart.length }})</h4>
+                <span class="text-xs font-extrabold text-emerald-700">Total: R{{ cartTotal }}.00</span>
+            </div>
             <div class="space-y-2 max-h-40 overflow-y-auto">
                 <div v-for="(item, idx) in cart" :key="idx" class="flex justify-between items-center text-xs bg-white p-2 rounded border border-slate-100">
                     <div>
                         <span class="font-bold text-emerald-700">{{ item.facility }}</span>
-                        <p class="text-slate-500">{{ item.date }} @ {{ item.time }} ({{ item.ageGroup }})</p>
+                        <p class="text-slate-500">{{ item.date }} @ {{ item.time }} ({{ item.ageGroup }}) - {{ item.duration }} hr(s)</p>
                     </div>
-                    <button @click="removeFromCart(idx)" class="text-red-500 hover:text-red-700">✕</button>
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-slate-800">R{{ item.amount || (calculateServiceRate(item.facility, item.ageGroup) * (item.duration || 1)) }}.00</span>
+                        <button @click="removeFromCart(idx)" class="text-red-500 hover:text-red-700 font-bold">✕</button>
+                    </div>
                 </div>
             </div>
             <div class="mt-3 grid grid-cols-2 gap-2 pt-3 border-t border-slate-200">
                  <button class="px-3 py-1.5 border border-emerald-600 text-emerald-700 rounded text-xs font-bold hover:bg-emerald-50" @click="handleBook(false)">
-                    Checkout (Reserve)
+                    Reserve (R{{ cartTotal }}.00)
                  </button>
                  <button class="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700" @click="handleBook(true)">
-                    Checkout (Pay)
+                    Pay Now (R{{ cartTotal }}.00)
                  </button>
             </div>
         </div>
 
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Facility</label>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Service / Facility</label>
             <select
               v-model="newBooking.facility"
-              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm font-medium text-slate-800"
             >
-              <option>Pitch 1</option>
-              <option>Pitch 2</option>
-              <option>Indoor Nets</option>
-              <option>Bowling Machine</option>
+              <option value="Lane Hire - Pitch 1">Lane Hire - Pitch 1 (R350/hr)</option>
+              <option value="Lane Hire - Pitch 2">Lane Hire - Pitch 2 (R350/hr)</option>
+              <option value="Junior Coaching">Junior Coaching (R450/hr)</option>
+              <option value="Senior Coaching">Senior Coaching (R600/hr)</option>
+              <option value="Bowling Machine">Bowling Machine (R350/hr)</option>
+              <option value="Indoor Nets">Indoor Nets (R350/hr)</option>
             </select>
+            <div class="mt-2 bg-emerald-50/80 rounded-xl p-3 border border-emerald-200/60 flex items-center justify-between text-xs">
+              <span class="text-emerald-800 font-medium">Rate: <strong>R{{ currentRate }}.00 / hr</strong></span>
+              <span class="text-emerald-950 font-extrabold text-sm">Estimated: R{{ currentTotal }}.00</span>
+            </div>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
@@ -379,7 +567,7 @@ onMounted(() => {
               <input
                 v-model="newBooking.date"
                 type="date"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
               />
             </div>
             <div>
@@ -387,7 +575,7 @@ onMounted(() => {
               <input
                 v-model="newBooking.time"
                 type="time"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
               />
             </div>
           </div>
@@ -398,14 +586,14 @@ onMounted(() => {
               type="number"
               min="1"
               max="8"
-              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
             />
           </div>
-          <!-- New Fields -->
+          <!-- Age Group & Player -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1">Age Group</label>
-                <select v-model="newBooking.ageGroup" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
+                <select v-model="newBooking.ageGroup" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
                   <option>Under 13</option>
                   <option>Above 13</option>
                 </select>
@@ -419,14 +607,14 @@ onMounted(() => {
                     v-model="newBooking.playerName"
                     type="text"
                     placeholder="Optional"
-                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
                 />
               </div>
           </div>
         </div>
-        <div class="mt-6 pt-4 border-t border-slate-100">
+        <div class="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between gap-4">
              <button class="w-full px-4 py-3 bg-slate-900 text-white font-bold rounded-lg hover:bg-slate-800 shadow-lg transition-all flex justify-center items-center gap-2" @click="addToCart">
-                <span>+ Add to Cart</span>
+                <span>+ Add to Cart (R{{ currentTotal }}.00)</span>
              </button>
         </div>
       </div>
@@ -450,22 +638,24 @@ onMounted(() => {
         </h3>
         <div class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-slate-700 mb-1">Facility</label>
-            <select v-model="editableBooking.facility" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none">
-              <option>Pitch 1</option>
-              <option>Pitch 2</option>
-              <option>Indoor Nets</option>
-              <option>Bowling Machine</option>
+            <label class="block text-sm font-medium text-slate-700 mb-1">Facility / Service</label>
+            <select v-model="editableBooking.facility" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+              <option value="Pitch 1">Pitch 1 (R350/hr)</option>
+              <option value="Pitch 2">Pitch 2 (R350/hr)</option>
+              <option value="Indoor Nets">Indoor Nets (R350/hr)</option>
+              <option value="Bowling Machine">Bowling Machine (R350/hr)</option>
+              <option value="Junior Coaching">Junior Coaching (R450/hr)</option>
+              <option value="Senior Coaching">Senior Coaching (R600/hr)</option>
             </select>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Date</label>
-              <input v-model="editableBooking.date" type="date" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+              <input v-model="editableBooking.date" type="date" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Time</label>
-              <input v-model="editableBooking.startTime" type="time" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none" />
+              <input v-model="editableBooking.startTime" type="time" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm" />
             </div>
           </div>
           <div>
@@ -475,8 +665,26 @@ onMounted(() => {
               type="number"
               min="1"
               max="8"
-              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none"
+              class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
             />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Age Group</label>
+              <select v-model="editableBooking.ageGroup" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm">
+                <option>Under 13</option>
+                <option>Above 13</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 mb-1">Player Name</label>
+              <input
+                v-model="editableBooking.playerName"
+                type="text"
+                placeholder="Player Name"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-sm"
+              />
+            </div>
           </div>
         </div>
         <div class="mt-6 grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
@@ -515,6 +723,8 @@ onMounted(() => {
           <p><span class="font-semibold">Facility:</span> {{ receiptBooking.facility }}</p>
           <p><span class="font-semibold">Date:</span> {{ receiptBooking.date }} at {{ receiptBooking.startTime || receiptBooking.start_time }}</p>
           <p><span class="font-semibold">Duration:</span> {{ receiptBooking.durationHours || receiptBooking.duration_hours || receiptBooking.duration || 1 }} hours</p>
+          <p><span class="font-semibold">Rate:</span> R{{ receiptBooking.rate || calculateServiceRate(receiptBooking.facility, receiptBooking.ageGroup || receiptBooking.age_group) }}.00 / hr</p>
+          <p><span class="font-semibold text-emerald-700">Total Amount:</span> <strong class="text-emerald-700">R{{ receiptBooking.amount || ((receiptBooking.rate || calculateServiceRate(receiptBooking.facility, receiptBooking.ageGroup || receiptBooking.age_group)) * (receiptBooking.durationHours || receiptBooking.duration_hours || 1)) }}.00</strong></p>
           <p><span class="font-semibold">Status:</span> {{ receiptBooking.status }}</p>
           <p><span class="font-semibold">Payment Status:</span> {{ receiptBooking.payment_status || 'UNPAID' }}</p>
           <p v-if="receiptBooking.payment_id"><span class="font-semibold">Payment ID:</span> {{ receiptBooking.payment_id }}</p>
@@ -569,21 +779,38 @@ onMounted(() => {
         </div>
 
         <h4 class="text-base md:text-lg font-bold text-slate-800 mb-1">{{ booking.facility }}</h4>
-        <p class="text-xs text-slate-500 mb-4">🗓 {{ booking.date }} | ⏰ {{ booking.startTime || booking.start_time }}</p>
+        <p class="text-xs text-slate-500 mb-2">🗓 {{ booking.date }} | ⏰ {{ booking.startTime || booking.start_time }}</p>
+
+        <div v-if="booking.lane || booking.playerName || booking.player_name" class="flex flex-wrap items-center gap-1.5 mb-3">
+          <span v-if="booking.lane" class="px-2 py-0.5 text-[10px] bg-emerald-50 text-emerald-700 font-bold rounded border border-emerald-100">
+            {{ booking.lane }}
+          </span>
+          <span v-if="booking.ageGroup || booking.age_group" class="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 font-medium rounded">
+            {{ booking.ageGroup || booking.age_group }}
+          </span>
+          <span v-if="booking.playerName || booking.player_name" class="text-[11px] text-slate-600 font-medium">
+            👤 {{ booking.playerName || booking.player_name }}
+          </span>
+        </div>
 
         <div class="flex items-center mb-4">
           <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-600 mr-2">
-            {{ displayMembers.find((m) => m.id === (booking.memberId || booking.member_id))?.name.charAt(0) }}
+            {{ displayMembers.find((m) => m.id === (booking.memberId || booking.member_id))?.name?.charAt(0) || '👤' }}
           </div>
           <div>
-            <p class="text-xs font-medium text-slate-700">{{ displayMembers.find((m) => m.id === (booking.memberId || booking.member_id))?.name }}</p>
-            <p class="text-[10px] text-slate-400">{{ displayMembers.find((m) => m.id === (booking.memberId || booking.member_id))?.membershipType }}</p>
+            <p class="text-xs font-medium text-slate-700">{{ displayMembers.find((m) => m.id === (booking.memberId || booking.member_id))?.name || (booking.playerName || 'Guest') }}</p>
+            <p class="text-[10px] text-slate-400">{{ displayMembers.find((m) => m.id === (booking.memberId || booking.member_id))?.membershipType || 'Standard' }}</p>
           </div>
         </div>
 
         <div class="flex items-center space-x-2 border-t pt-3 md:pt-4">
-          <button class="flex-1 text-[10px] font-medium py-1.5 rounded border border-slate-200 text-slate-600 hover:bg-slate-50">
-            Sync
+          <button
+            class="flex-1 text-[10px] font-medium py-1.5 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-emerald-700 flex items-center justify-center gap-1 transition-colors"
+            title="Sync with Google Calendar"
+            @click="syncCalendar(booking)"
+          >
+            <span>📅</span>
+            <span>Sync</span>
           </button>
           <button
             v-if="booking.payment_status === 'PAID' || booking.status === 'CONFIRMED'"

@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'edward' => [
+        'site_id' => env('EDWARD_SITE_ID', '2563d695-bf11-43cd-861c-13ce2cd6b015'),
+        'api_key' => env('EDWARD_API_KEY', 'pc_edward_key_2026'),
+        'site_url' => env('EDWARD_SITE_URL', 'https://playcricket.co.za'),
+    ],
+
 ];

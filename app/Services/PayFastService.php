@@ -20,8 +20,10 @@ class PayFastService
 
     public function generatePaymentForm($booking, $returnUrl, $cancelUrl, $notifyUrl)
     {
-        // Price hardcoded for demo: $100 per hour
-        $amount = $booking->duration_hours * 100.00; 
+        // Compute amount based on official PlayCricket rates (R350, R450, R600)
+        $rate = $booking->rate ?? \App\Models\Booking::calculateRate($booking->facility, $booking->age_group ?? null);
+        $duration = (float) ($booking->duration_hours ?? 1);
+        $amount = (float) ($booking->amount ?? round($rate * $duration, 2)); 
         
         $data = [
             // Merchant details

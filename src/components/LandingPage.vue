@@ -27,36 +27,42 @@ const services = [
     { 
         id: 1, 
         title: 'Lane Hire', 
+        price: 'R350 / hr',
         description: 'Three full-size indoor cricket lanes available for hire. Perfect for net sessions, team drills, or individual practice.',
         image: '/images/lane-hire.png'
     },
     { 
         id: 2, 
-        title: 'Bowling Machines', 
-        description: 'State-of-the-art bowling machines delivering pace, spin, swing and seam. Dial up any delivery type from gentle pace to express speed.',
-        image: '/images/bowling-machine.png'
+        title: 'Junior Coaching', 
+        price: 'R450 / hr',
+        description: 'Structured programs for U9–U13 players. Skill development, match preparation, and age-appropriate coaching in a safe, high-energy environment.',
+        image: '/images/junior-academy.png'
     },
     { 
         id: 3, 
-        title: 'Private Coaching', 
-        description: '1-on-1 sessions with our expert coaches. Technical refinement, mental game, batting, bowling, or fielding - your session, your goals.',
+        title: 'Senior Coaching', 
+        price: 'R600 / hr',
+        description: '1-on-1 and tactical sessions with our expert coaches. Technical refinement, mental game, batting, pace/spin bowling, or fielding.',
         image: '/images/private-coaching.jpg'
     },
     { 
         id: 4, 
-        title: 'Group Coaching', 
-        description: 'Small-group sessions for schools, club & squads. Our coaches run structured programs designed to build team skill and cohesion simultaneously.',
-        image: '/images/group-coaching.png'
+        title: 'Bowling Machines', 
+        price: 'R350 / hr',
+        description: 'State-of-the-art bowling machines delivering pace, spin, swing and seam. Dial up any delivery type from gentle pace to express speed.',
+        image: '/images/bowling-machine.png'
     },
     { 
         id: 5, 
-        title: 'Junior Academy', 
-        description: 'Structured programs for U9–U19 players. Skill development, match preparation and age-appropriate coaching in a safe, high-energy environment.',
-        image: '/images/junior-academy.png'
+        title: 'Group Coaching', 
+        price: 'Squad Packages',
+        description: 'Small-group sessions for schools, clubs & squads. Our coaches run structured programs designed to build team skill and cohesion simultaneously.',
+        image: '/images/group-coaching.png'
     },
     { 
         id: 6, 
         title: 'Online Booking', 
+        price: 'Instant Confirmation',
         description: 'Book lanes, coaching sessions, and machine time instantly online. Secure payment, instant confirmation, and easy rescheduling - all from your phone.',
         image: '/images/online-booking.png'
     },
@@ -99,7 +105,7 @@ const closeVideo = () => {
 const bookingData = ref({
     date: new Date(Date.now() + 86400000).toISOString().substr(0, 10), // Default to tomorrow
     time: '16:00 - 17:00',
-    service: 'Lane 02 + Bowling Machine'
+    service: 'Lane Hire (R350/hr)'
 });
 
 const availableTimes = [
@@ -109,13 +115,29 @@ const availableTimes = [
 ];
 
 const availableServices = [
-    'Lane 01 Hire', 'Lane 02 Hire', 'Lane 02 + Bowling Machine',
-    'Private Coaching', 'Group Session', 'Junior Academy'
+    'Lane Hire (R350/hr)', 
+    'Junior Coaching (R450/hr)', 
+    'Senior Coaching (R600/hr)',
+    'Bowling Machine (R350/hr)', 
+    'Indoor Nets Hire (R350/hr)'
 ];
 
 const submitContact = () => {
     alert('Thank you! We will contact you shortly.');
     contactForm.value = { name: '', email: '', message: '' };
+};
+
+const proceedWithQuickBooking = () => {
+    try {
+        localStorage.setItem('playcricket_pending_booking', JSON.stringify({
+            date: bookingData.value.date,
+            time: bookingData.value.time,
+            service: bookingData.value.service
+        }));
+    } catch (e) {
+        console.warn('Failed to save pending booking', e);
+    }
+    emit('login');
 };
 
 const testimonials = [
@@ -176,6 +198,7 @@ const testimonials = [
             <a href="#lanes" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Lanes</a>
             <a href="#coaching" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Coaching</a>
             <a href="#academy" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Academy</a>
+            <a href="/blog" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Blog</a>
             <a href="#" @click.prevent="$emit('contact')" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Contact</a>
             <button
                 @click="$emit('login')"
@@ -219,6 +242,7 @@ const testimonials = [
                     <a href="#lanes" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Lanes</a>
                     <a href="#coaching" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Coaching</a>
                     <a href="#academy" @click="closeMobileMenu" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Academy</a>
+                    <a href="/blog" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors">Blog</a>
                     <a href="#" @click.prevent="closeMobileMenu(); $emit('contact');" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors mb-4">Contact</a>
                     
                     <button 
@@ -283,6 +307,9 @@ const testimonials = [
                   <div class="relative h-64 mb-6 overflow-hidden rounded-[2rem] shadow-xl transition-transform duration-500 group-hover:scale-[1.02]">
                      <img :src="service.image" class="w-full h-full object-cover" :alt="service.title">
                      <div class="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors"></div>
+                     <div v-if="service.price" class="absolute top-4 right-4 bg-white/95 backdrop-blur-sm text-slate-900 font-extrabold text-xs px-3.5 py-1.5 rounded-full shadow-md border border-slate-100">
+                         {{ service.price }}
+                     </div>
                   </div>
                   <h3 class="text-2xl font-bold text-slate-900 mb-3">{{ service.title }}</h3>
                   <p class="text-slate-500 leading-relaxed text-sm md:text-base">
@@ -405,7 +432,7 @@ const testimonials = [
                         </div>
 
                         <button 
-                           @click="$emit('login')"
+                           @click="proceedWithQuickBooking"
                            class="w-full bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-5 rounded-2xl transition-all shadow-xl hover:shadow-[#FF0F20]/20 transform active:scale-[0.98] flex items-center justify-center gap-3"
                         >
                            <span>🎫</span>
