@@ -42,4 +42,5 @@ Route::get('/edward/taxonomies', [\App\Http\Controllers\EdwardController::class,
 Route::get('/edward/authors', [\App\Http\Controllers\EdwardController::class, 'authors']);
 Route::get('/edward/articles', [\App\Http\Controllers\EdwardController::class, 'articles']);
 Route::match(['get', 'post'], '/webhooks/edward', [\App\Http\Controllers\EdwardController::class, 'publish']);
+Route::match(['get', 'post'], '/edward-webhook', [\App\Http\Controllers\EdwardController::class, 'publish']);
 Route::get('/articles', [\App\Http\Controllers\EdwardController::class, 'articles']);

@@ -294,7 +294,9 @@ class BookingProcessTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJson([
-                'status' => 'success',
+                'ok' => true,
+                'status' => 'ok',
+                'received' => true,
                 'external_id' => 'ping',
                 'duplicate' => false,
             ]);

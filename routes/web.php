@@ -17,6 +17,8 @@ Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 // Edward AI Direct Webhook and Verification Routes
 Route::match(['get', 'post'], '/webhooks/edward', [EdwardController::class, 'publish'])->name('edward.publish');
+Route::match(['get', 'post'], '/api/edward-webhook', [EdwardController::class, 'publish']);
+Route::match(['get', 'post'], '/edward-webhook', [EdwardController::class, 'publish']);
 Route::get('/edward/verify', [EdwardController::class, 'ping'])->name('edward.verify');
 Route::get('/edward/diagnostics', [EdwardController::class, 'diagnostics'])->name('edward.diagnostics');
 

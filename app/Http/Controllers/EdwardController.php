@@ -86,21 +86,33 @@ class EdwardController extends Controller
      */
     public function publish(Request $request)
     {
-        $rawBody = $request->getContent();
-        $timestamp = $request->header('X-Edward-Timestamp');
-        $signature = $request->header('X-Edward-Signature');
-        $event = $request->header('X-Edward-Event') ?? $request->input('event');
+        $rawBody = $request->getContent() ?: file_get_contents('php://input');
+        $timestamp = $request->header('X-Edward-Timestamp') 
+            ?? $request->header('x-edward-timestamp') 
+            ?? ($_SERVER['HTTP_X_EDWARD_TIMESTAMP'] ?? null);
+            
+        $signature = $request->header('X-Edward-Signature') 
+            ?? $request->header('x-edward-signature') 
+            ?? ($_SERVER['HTTP_X_EDWARD_SIGNATURE'] ?? null);
+            
+        $event = $request->header('X-Edward-Event') 
+            ?? $request->header('x-edward-event') 
+            ?? ($_SERVER['HTTP_X_EDWARD_EVENT'] ?? null) 
+            ?? $request->input('event');
+            
         $signingSecret = config('services.edward.signing_secret', env('EDWARD_SIGNING_SECRET', 'ehsec_f84f198ae37625bd1a602bcfc8242c24d142c0b6d8456381'));
 
         // 1. Verify HMAC SHA-256 signature if provided by Edward
         if ($signature && $timestamp) {
-            $expectedSignature = 'sha256=' . hash_hmac('sha256', $timestamp . '.' . $rawBody, $signingSecret);
-            if (!hash_equals($expectedSignature, $signature)) {
+            $expectedHex = hash_hmac('sha256', $timestamp . '.' . $rawBody, $signingSecret);
+            $receivedHex = Str::startsWith($signature, 'sha256=') ? Str::after($signature, 'sha256=') : $signature;
+            
+            if (!hash_equals($expectedHex, $receivedHex) && !hash_equals('sha256=' . $expectedHex, $signature)) {
                 Log::warning('Edward webhook signature mismatch', [
                     'received' => $signature,
-                    'expected' => $expectedSignature,
+                    'expected' => 'sha256=' . $expectedHex,
                 ]);
-                return response()->json(['error' => 'Invalid webhook signature'], 401);
+                return response()->json(['error' => 'Invalid webhook signature', 'ok' => false], 401);
             }
         } else {
             // Optional fallback API key check for custom callers or testing
@@ -112,15 +124,31 @@ class EdwardController extends Controller
             $configuredKey = config('services.edward.api_key', 'pc_edward_key_2026');
             if ($providedKey && $configuredKey && $providedKey !== $configuredKey) {
                 Log::warning('Edward publication unauthorized key attempt', ['provided' => $providedKey]);
-                return response()->json(['error' => 'Invalid Edward API Key'], 401);
+                return response()->json(['error' => 'Invalid Edward API Key', 'ok' => false], 401);
             }
         }
 
+        $bodyArray = json_decode($rawBody, true) ?: [];
+        if (!$event && isset($bodyArray['event'])) {
+            $event = $bodyArray['event'];
+        }
+
+        $isPing = ($event === 'ping') 
+            || ($request->header('X-Edward-Event') === 'ping')
+            || (isset($bodyArray['event']) && $bodyArray['event'] === 'ping')
+            || (isset($bodyArray['action']) && $bodyArray['action'] === 'ping')
+            || (empty($bodyArray) && $request->isMethod('get'))
+            || ($request->input('event') === 'ping');
+
         // 2. Handle "ping" test event triggered by "Test & connect" button on Edward dashboard
-        if ($event === 'ping') {
+        // Edward expects { "ok": true } or { "status": "ok" } or { "received": true }
+        if ($isPing) {
             Log::info('Edward test ping received and verified successfully');
             return response()->json([
-                'status' => 'success',
+                'ok' => true,
+                'status' => 'ok',
+                'received' => true,
+                'success' => true,
                 'message' => 'Edward webhook ping verified successfully',
                 'external_id' => 'ping',
                 'post_url' => url('/blog'),
@@ -129,7 +157,7 @@ class EdwardController extends Controller
         }
 
         // 3. Extract article data (supports both nested data object and root-level fields)
-        $articleData = $request->input('data') ?? $request->all();
+        $articleData = $request->input('data') ?? ($bodyArray['data'] ?? $bodyArray);
 
         $title = $articleData['title']['rendered'] ?? $articleData['title'] ?? null;
         $content = $articleData['content']['rendered'] ?? $articleData['content'] ?? null;
@@ -137,7 +165,7 @@ class EdwardController extends Controller
         $externalId = $articleData['edward_article_id'] ?? $request->input('id') ?? $articleData['id'] ?? null;
 
         if (empty($title) || empty($content)) {
-            return response()->json(['error' => 'Title and content are required'], 422);
+            return response()->json(['error' => 'Title and content are required', 'ok' => false], 422);
         }
 
         $excerpt = $articleData['excerpt']['rendered'] 
@@ -209,6 +237,7 @@ class EdwardController extends Controller
         $statusCode = $duplicate ? 200 : 201;
 
         return response()->json([
+            'ok' => true,
             'external_id' => (string) $article->id,
             'post_url' => $postUrl,
             'duplicate' => $duplicate,
