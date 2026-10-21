@@ -36,3 +36,15 @@ Route::prefix('wp-json/wp/v2')->group(function () {
     Route::get('/categories', [EdwardController::class, 'taxonomies']);
     Route::get('/users', [EdwardController::class, 'authors']);
 });
+
+// Peach Payments Hosted Checkout & Webhook Routes
+Route::post('/payments/checkout', [\App\Http\Controllers\PaymentController::class, 'checkout'])->name('payments.checkout');
+Route::get('/payments/result', [\App\Http\Controllers\PaymentController::class, 'result'])->name('payments.result');
+Route::get('/payments/cancel', [\App\Http\Controllers\PaymentController::class, 'cancel'])->name('payments.cancel');
+Route::post('/webhooks/peach', [\App\Http\Controllers\PaymentController::class, 'webhook'])->name('payments.peach.webhook');
+
+// Legacy PayFast Routes for backward compatibility
+Route::get('/payment/return', [\App\Http\Controllers\PaymentController::class, 'return'])->name('payment.return');
+Route::get('/payment/cancel', [\App\Http\Controllers\PaymentController::class, 'cancel'])->name('payment.cancel');
+Route::post('/payment/notify', [\App\Http\Controllers\PaymentController::class, 'notify'])->name('payment.notify');
+

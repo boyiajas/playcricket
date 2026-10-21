@@ -13,4 +13,5 @@ export const api = {
   chat: (memberId) => axios.get(memberId ? `${API_PREFIX}/chat?memberId=${memberId}` : `${API_PREFIX}/chat`).then(res => res.data),
   audit: () => axios.get(`${API_PREFIX}/audit`).then(res => res.data),
   reports: () => axios.get(`${API_PREFIX}/reports`).then(res => res.data),
+  checkoutPeach: (bookingId) => axios.post(`/payments/checkout`, { booking_id: bookingId }).then(res => res.data),
 };

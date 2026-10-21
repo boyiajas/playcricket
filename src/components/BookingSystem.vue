@@ -177,7 +177,13 @@ const handleBook = async (payNow = false) => {
     const paymentItem = results.find(r => r.payment_data);
     
     if (payNow && paymentItem) {
-      submitPaymentForm(paymentItem.payment_data.url, paymentItem.payment_data.data);
+      if (paymentItem.payment_data.redirect_url) {
+        window.location.href = paymentItem.payment_data.redirect_url;
+      } else if (paymentItem.payment_data.url && paymentItem.payment_data.data) {
+        submitPaymentForm(paymentItem.payment_data.url, paymentItem.payment_data.data);
+      } else if (paymentItem.payment_data.url) {
+        window.location.href = paymentItem.payment_data.url;
+      }
     } else {
       alert('All bookings reserved successfully!');
       cart.value = [];

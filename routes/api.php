@@ -31,9 +31,11 @@ Route::get('/audit', [AuditController::class, 'index']);
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index']);
 
 // Payment Routes
-Route::get('/payment/return', [App\Http\Controllers\PaymentController::class, 'return'])->name('payment.return');
-Route::get('/payment/cancel', [App\Http\Controllers\PaymentController::class, 'cancel'])->name('payment.cancel');
-Route::post('/payment/notify', [App\Http\Controllers\PaymentController::class, 'notify'])->name('payment.notify');
+Route::post('/payments/checkout', [\App\Http\Controllers\PaymentController::class, 'checkout']);
+Route::post('/webhooks/peach', [\App\Http\Controllers\PaymentController::class, 'webhook']);
+Route::get('/payment/return', [App\Http\Controllers\PaymentController::class, 'return'])->name('api.payment.return');
+Route::get('/payment/cancel', [App\Http\Controllers\PaymentController::class, 'cancel'])->name('api.payment.cancel');
+Route::post('/payment/notify', [App\Http\Controllers\PaymentController::class, 'notify'])->name('api.payment.notify');
 
 // Edward AI SEO Integration Endpoints
 Route::get('/edward/verify', [\App\Http\Controllers\EdwardController::class, 'ping']);

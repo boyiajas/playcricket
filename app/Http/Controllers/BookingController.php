@@ -12,11 +12,16 @@ use Illuminate\Support\Facades\Schema;
 class BookingController extends Controller
 {
     protected $payFastService;
+    protected $peachPaymentService;
     protected $notificationService;
 
-    public function __construct(PayFastService $payFastService, \App\Services\NotificationService $notificationService)
-    {
+    public function __construct(
+        PayFastService $payFastService, 
+        \App\Services\PeachPaymentService $peachPaymentService,
+        \App\Services\NotificationService $notificationService
+    ) {
         $this->payFastService = $payFastService;
+        $this->peachPaymentService = $peachPaymentService;
         $this->notificationService = $notificationService;
     }
 
@@ -119,13 +124,32 @@ class BookingController extends Controller
         ];
 
         if ($request->boolean('payNow')) {
+            $peachSession = $this->peachPaymentService->createCheckoutSession(
+                $booking,
+                [
+                    'name' => $data['playerName'] ?? 'Cricket Player',
+                    'email' => $request->input('email', 'player@playcricket.co.za'),
+                ],
+                route('payments.result'),
+                route('payments.cancel'),
+                route('payments.peach.webhook')
+            );
+
             $paymentData = $this->payFastService->generatePaymentForm(
                 $booking,
                 route('payment.return'),
                 route('payment.cancel'),
                 route('payment.notify')
             );
-            $response['payment_data'] = $paymentData;
+
+            $response['payment_data'] = array_merge($paymentData, [
+                'gateway' => 'peach_payments',
+                'checkout_id' => $peachSession['checkout_id'],
+                'redirect_url' => $peachSession['redirect_url'],
+                'reference' => $peachSession['reference'],
+                'amount' => $peachSession['amount'],
+            ]);
+            $response['peach_checkout'] = $peachSession;
         }
 
         return response()->json($response, 201);

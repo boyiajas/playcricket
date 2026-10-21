@@ -59,4 +59,21 @@ class Booking extends Model
             }
         });
     }
+
+    /**
+     * Relationship to payments.
+     */
+    public function payments(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    /**
+     * Relationship to latest payment.
+     */
+    public function latestPayment(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Payment::class)->latestOfMany();
+    }
 }
+
