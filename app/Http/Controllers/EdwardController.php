@@ -81,81 +81,150 @@ class EdwardController extends Controller
     }
 
     /**
-     * Publish or update an article sent from Edward AI SEO.
+     * Publish or update an article sent from Edward AI SEO webhook.
+     * Complies with Edward's signed webhook specification (HMAC SHA-256).
      */
     public function publish(Request $request)
     {
-        // Check API key if provided
-        $providedKey = $request->header('X-Edward-Key') 
-            ?? $request->bearerToken() 
-            ?? $request->input('api_key')
-            ?? $request->header('X-API-KEY');
+        $rawBody = $request->getContent();
+        $timestamp = $request->header('X-Edward-Timestamp');
+        $signature = $request->header('X-Edward-Signature');
+        $event = $request->header('X-Edward-Event') ?? $request->input('event');
+        $signingSecret = config('services.edward.signing_secret', env('EDWARD_SIGNING_SECRET', 'ehsec_f84f198ae37625bd1a602bcfc8242c24d142c0b6d8456381'));
 
-        $configuredKey = config('services.edward.api_key', 'pc_edward_key_2026');
-        if ($providedKey && $configuredKey && $providedKey !== $configuredKey) {
-            Log::warning('Edward publication unauthorized key attempt', ['provided' => $providedKey]);
-            return response()->json(['error' => 'Invalid Edward API Key'], 401);
+        // 1. Verify HMAC SHA-256 signature if provided by Edward
+        if ($signature && $timestamp) {
+            $expectedSignature = 'sha256=' . hash_hmac('sha256', $timestamp . '.' . $rawBody, $signingSecret);
+            if (!hash_equals($expectedSignature, $signature)) {
+                Log::warning('Edward webhook signature mismatch', [
+                    'received' => $signature,
+                    'expected' => $expectedSignature,
+                ]);
+                return response()->json(['error' => 'Invalid webhook signature'], 401);
+            }
+        } else {
+            // Optional fallback API key check for custom callers or testing
+            $providedKey = $request->header('X-Edward-Key') 
+                ?? $request->bearerToken() 
+                ?? $request->input('api_key')
+                ?? $request->header('X-API-KEY');
+
+            $configuredKey = config('services.edward.api_key', 'pc_edward_key_2026');
+            if ($providedKey && $configuredKey && $providedKey !== $configuredKey) {
+                Log::warning('Edward publication unauthorized key attempt', ['provided' => $providedKey]);
+                return response()->json(['error' => 'Invalid Edward API Key'], 401);
+            }
         }
 
-        // Support both direct Edward JSON and WordPress REST payload shapes
-        $title = $request->input('title.rendered') ?? $request->input('title');
-        $content = $request->input('content.rendered') ?? $request->input('content');
-        $slug = $request->input('slug') ?? ($title ? Str::slug($title) : 'article-' . time());
-        $excerpt = $request->input('excerpt.rendered') ?? $request->input('excerpt') ?? Str::limit(strip_tags($content ?? ''), 160);
+        // 2. Handle "ping" test event triggered by "Test & connect" button on Edward dashboard
+        if ($event === 'ping') {
+            Log::info('Edward test ping received and verified successfully');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Edward webhook ping verified successfully',
+                'external_id' => 'ping',
+                'post_url' => url('/blog'),
+                'duplicate' => false,
+            ], 200);
+        }
+
+        // 3. Extract article data (supports both nested data object and root-level fields)
+        $articleData = $request->input('data') ?? $request->all();
+
+        $title = $articleData['title']['rendered'] ?? $articleData['title'] ?? null;
+        $content = $articleData['content']['rendered'] ?? $articleData['content'] ?? null;
+        $slug = $articleData['slug'] ?? ($title ? Str::slug($title) : 'article-' . time());
+        $externalId = $articleData['edward_article_id'] ?? $request->input('id') ?? $articleData['id'] ?? null;
 
         if (empty($title) || empty($content)) {
             return response()->json(['error' => 'Title and content are required'], 422);
         }
 
-        // External featured image or fallback cricket photo
-        $featuredImage = $request->input('featured_image') 
-            ?? $request->input('featured_media_url') 
-            ?? $request->input('image_url')
+        $excerpt = $articleData['excerpt']['rendered'] 
+            ?? $articleData['excerpt'] 
+            ?? $articleData['meta_description'] 
+            ?? Str::limit(strip_tags((string) $content), 160);
+
+        // Featured Image
+        $featuredImage = $articleData['featured_image_url'] 
+            ?? $articleData['featured_image'] 
+            ?? $articleData['featured_media_url'] 
+            ?? $articleData['og_image_url'] 
             ?? '/images/private-coaching.jpg';
 
-        $metaTitle = $request->input('meta_title') ?? $request->input('yoast_title') ?? $title;
-        $metaDescription = $request->input('meta_description') ?? $request->input('yoast_description') ?? $excerpt;
-        $focusKeyword = $request->input('focus_keyword') ?? $request->input('keyword');
-        $category = $request->input('category') ?? 'Cricket Coaching';
-        $tags = $request->input('tags') ?? ['cricket', 'training', 'playcricket'];
+        $metaTitle = $articleData['meta_title'] ?? $articleData['og_title'] ?? $title;
+        $metaDescription = $articleData['meta_description'] ?? $articleData['og_description'] ?? $excerpt;
+        $focusKeyword = $articleData['focus_keyword'] ?? $articleData['keyword'] ?? null;
+        $category = $articleData['category'] ?? 'Cricket Coaching';
+        $tags = $articleData['tags'] ?? ['cricket', 'training', 'playcricket'];
+        $status = $articleData['status'] ?? 'published';
+        $author = $articleData['author'] ?? 'PlayCricket Coaching Staff';
 
-        $article = Article::updateOrCreate(
-            ['slug' => $slug],
-            [
-                'title' => $title,
-                'content' => $content,
-                'excerpt' => $excerpt,
-                'featured_image' => $featuredImage,
-                'author' => $request->input('author', 'PlayCricket Coaching Staff'),
-                'category' => is_string($category) ? $category : 'Cricket Coaching',
-                'tags' => is_array($tags) ? $tags : explode(',', (string) $tags),
-                'meta_title' => $metaTitle,
-                'meta_description' => $metaDescription,
-                'focus_keyword' => $focusKeyword,
-                'status' => $request->input('status', 'published'),
-                'source' => 'edward',
-                'external_id' => $request->input('id') ?? $request->input('edward_id'),
-                'published_at' => now(),
-            ]
-        );
+        // 4. Upsert by external_id (Edward's stable ID) or fallback by slug
+        $article = null;
+        $duplicate = false;
 
-        Log::info("Article published via Edward AI: {$article->title} (slug: {$article->slug})");
+        if ($externalId) {
+            $article = Article::where('external_id', $externalId)->first();
+        }
+
+        if (!$article) {
+            $article = Article::where('slug', $slug)->first();
+            if ($article) {
+                $duplicate = true;
+            }
+        } else {
+            $duplicate = true;
+        }
+
+        $articleAttributes = [
+            'title' => $title,
+            'slug' => $slug,
+            'content' => $content,
+            'excerpt' => $excerpt,
+            'featured_image' => $featuredImage,
+            'author' => $author,
+            'category' => is_string($category) ? $category : 'Cricket Coaching',
+            'tags' => is_array($tags) ? $tags : explode(',', (string) $tags),
+            'meta_title' => $metaTitle,
+            'meta_description' => $metaDescription,
+            'focus_keyword' => $focusKeyword,
+            'status' => $status,
+            'source' => 'edward',
+            'external_id' => $externalId,
+            'published_at' => ($article && $article->published_at) ? $article->published_at : now(),
+        ];
+
+        if ($article) {
+            $article->update($articleAttributes);
+        } else {
+            $article = Article::create($articleAttributes);
+        }
+
+        Log::info("Article published via Edward AI: {$article->title} (ID: {$article->id}, external_id: {$externalId})");
+
+        $postUrl = url('/blog/' . $article->slug);
+
+        // Official response schema expected by Edward (accepts 200, 201, 204)
+        $statusCode = $duplicate ? 200 : 201;
 
         return response()->json([
+            'external_id' => (string) $article->id,
+            'post_url' => $postUrl,
+            'duplicate' => $duplicate,
             'status' => 'success',
             'message' => 'Article published successfully',
+            // Compatibility helpers
             'id' => $article->id,
+            'link' => $postUrl,
             'article' => [
                 'id' => $article->id,
                 'title' => $article->title,
                 'slug' => $article->slug,
-                'url' => url('/blog/' . $article->slug),
-                'published_at' => $article->published_at->toIso8601String(),
+                'url' => $postUrl,
                 'status' => $article->status,
             ],
-            // WordPress REST format compatibility
-            'link' => url('/blog/' . $article->slug),
-        ], 201);
+        ], $statusCode);
     }
 
     /**

@@ -38,6 +38,7 @@ return [
     'edward' => [
         'site_id' => env('EDWARD_SITE_ID', '2563d695-bf11-43cd-861c-13ce2cd6b015'),
         'api_key' => env('EDWARD_API_KEY', 'pc_edward_key_2026'),
+        'signing_secret' => env('EDWARD_SIGNING_SECRET', 'ehsec_f84f198ae37625bd1a602bcfc8242c24d142c0b6d8456381'),
         'site_url' => env('EDWARD_SITE_URL', 'https://playcricket.co.za'),
     ],
 

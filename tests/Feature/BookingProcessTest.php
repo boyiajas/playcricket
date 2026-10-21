@@ -264,4 +264,90 @@ class BookingProcessTest extends TestCase
         $blogResponse->assertStatus(200);
         $blogResponse->assertSeeText('PlayCricket Journal');
     }
+
+    public function test_edward_webhook_ping_event_with_hmac_signature(): void
+    {
+        $timestamp = (string) time();
+        $payload = [
+            'event' => 'ping',
+            'id' => 'evt_' . uniqid(),
+            'created_at' => now()->toIso8601String(),
+        ];
+        $rawPayload = json_encode($payload);
+        $signingSecret = config('services.edward.signing_secret');
+        $signature = 'sha256=' . hash_hmac('sha256', "{$timestamp}.{$rawPayload}", $signingSecret);
+
+        $response = $this->call(
+            'POST',
+            '/webhooks/edward',
+            [],
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_X_EDWARD_EVENT' => 'ping',
+                'HTTP_X_EDWARD_TIMESTAMP' => $timestamp,
+                'HTTP_X_EDWARD_SIGNATURE' => $signature,
+            ],
+            $rawPayload
+        );
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'status' => 'success',
+                'external_id' => 'ping',
+                'duplicate' => false,
+            ]);
+    }
+
+    public function test_edward_webhook_article_published_event_with_nested_data_and_hmac(): void
+    {
+        $timestamp = (string) time();
+        $payload = [
+            'event' => 'article.published',
+            'id' => 'evt_art_12345',
+            'data' => [
+                'edward_article_id' => 'edw_art_9999',
+                'title' => 'Top 5 Batting Drills for Consistency and Power',
+                'slug' => 'top-5-batting-drills-consistency-power',
+                'content' => '<p>Mastering the back-foot punch and front-foot cover drive with regular lane drills.</p>',
+                'meta_description' => 'Discover the top 5 cricket batting drills to improve consistency and power.',
+                'featured_image_url' => 'https://playcricket.co.za/images/batting-drills.jpg',
+                'category' => 'Batting Masterclass',
+                'tags' => ['batting', 'drills', 'coaching'],
+                'author' => 'Edward AI Coach',
+            ],
+        ];
+        $rawPayload = json_encode($payload);
+        $signingSecret = config('services.edward.signing_secret');
+        $signature = 'sha256=' . hash_hmac('sha256', "{$timestamp}.{$rawPayload}", $signingSecret);
+
+        $response = $this->call(
+            'POST',
+            '/webhooks/edward',
+            [],
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_X_EDWARD_EVENT' => 'article.published',
+                'HTTP_X_EDWARD_TIMESTAMP' => $timestamp,
+                'HTTP_X_EDWARD_SIGNATURE' => $signature,
+            ],
+            $rawPayload
+        );
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'duplicate' => false,
+                'status' => 'success',
+            ]);
+
+        $this->assertDatabaseHas('articles', [
+            'external_id' => 'edw_art_9999',
+            'slug' => 'top-5-batting-drills-consistency-power',
+            'title' => 'Top 5 Batting Drills for Consistency and Power',
+            'category' => 'Batting Masterclass',
+        ]);
+    }
 }
