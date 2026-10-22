@@ -13,7 +13,32 @@ class Booking extends Model
         'duration_hours' => 'integer',
         'rate' => 'float',
         'amount' => 'float',
+        'is_guest' => 'boolean',
     ];
+
+    /**
+     * Get the customer name for receipt and notifications.
+     */
+    public function getCustomerNameAttribute(): string
+    {
+        return $this->guest_name ?: ($this->player_name ?: 'Guest Player');
+    }
+
+    /**
+     * Get the customer contact email.
+     */
+    public function getCustomerEmailAttribute(): ?string
+    {
+        return $this->guest_email;
+    }
+
+    /**
+     * Get the customer contact phone.
+     */
+    public function getCustomerPhoneAttribute(): ?string
+    {
+        return $this->guest_phone;
+    }
 
     /**
      * Official PlayCricket Pricing:

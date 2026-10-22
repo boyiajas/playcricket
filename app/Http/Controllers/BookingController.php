@@ -65,6 +65,12 @@ class BookingController extends Controller
             'playerName' => 'nullable|string',
             'rate' => 'nullable|numeric',
             'amount' => 'nullable|numeric',
+            'guestName' => 'nullable|string',
+            'guestEmail' => 'nullable|string',
+            'guestPhone' => 'nullable|string',
+            'isGuest' => 'nullable|boolean',
+            'email' => 'nullable|string',
+            'phone' => 'nullable|string',
         ]);
 
         // Logic: Age/Lane Assignment
@@ -82,8 +88,17 @@ class BookingController extends Controller
         $durationHours = (float) $data['durationHours'];
         $amount = isset($data['amount']) ? (float)$data['amount'] : round($rate * $durationHours, 2);
 
+        $isGuest = empty($data['memberId']) || $data['memberId'] === 'guest' || $request->boolean('isGuest');
+        $guestName = $request->input('guestName') ?? $request->input('playerName') ?? ($isGuest ? 'Guest Player' : null);
+        $guestEmail = $request->input('guestEmail') ?? $request->input('email');
+        $guestPhone = $request->input('guestPhone') ?? $request->input('phone');
+
         $bookingPayload = [
-            'member_id' => $data['memberId'] ?? 'guest',
+            'member_id' => $isGuest ? 'guest' : ($data['memberId'] ?? 'guest'),
+            'is_guest' => $isGuest,
+            'guest_name' => $guestName,
+            'guest_email' => $guestEmail,
+            'guest_phone' => $guestPhone,
             'facility' => $data['facility'],
             'date' => $data['date'],
             'start_time' => $data['startTime'],
@@ -93,7 +108,7 @@ class BookingController extends Controller
             'status' => 'PENDING', // Will be confirmed after payment if payNow is true
             'payment_status' => 'UNPAID',
             'age_group' => $data['ageGroup'] ?? null,
-            'player_name' => $data['playerName'] ?? null,
+            'player_name' => $data['playerName'] ?? $guestName,
             'lane' => $lane
         ];
 
@@ -114,7 +129,7 @@ class BookingController extends Controller
         // Send Notification if confirmed
         if ($booking->status === 'CONFIRMED') {
             $member = collect(config('appdata.members'))->firstWhere('id', $booking->member_id);
-            $email = $member['email'] ?? 'user@example.com';
+            $email = $booking->guest_email ?: ($member['email'] ?? $request->input('email', 'guest@playcricket.co.za'));
             $this->notificationService->sendBookingConfirmation($booking, $email);
         }
 
@@ -127,8 +142,9 @@ class BookingController extends Controller
             $peachSession = $this->peachPaymentService->createCheckoutSession(
                 $booking,
                 [
-                    'name' => $data['playerName'] ?? 'Cricket Player',
-                    'email' => $request->input('email', 'player@playcricket.co.za'),
+                    'name' => $guestName ?: ($data['playerName'] ?? 'Cricket Player'),
+                    'email' => $guestEmail ?: $request->input('email', 'player@playcricket.co.za'),
+                    'mobile' => $guestPhone ?: $request->input('phone', '0820000000'),
                 ],
                 route('payments.result'),
                 route('payments.cancel'),

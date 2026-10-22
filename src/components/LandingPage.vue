@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 
-const emit = defineEmits(['login', 'contact']);
+const emit = defineEmits(['login', 'contact', 'book']);
 const isMobileMenuOpen = ref(false);
 const toggleMobileMenu = () => {
     isMobileMenuOpen.value = !isMobileMenuOpen.value;
@@ -137,7 +137,7 @@ const proceedWithQuickBooking = () => {
     } catch (e) {
         console.warn('Failed to save pending booking', e);
     }
-    emit('login');
+    emit('book');
 };
 
 const testimonials = [
@@ -200,8 +200,9 @@ const testimonials = [
             <a href="#academy" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Academy</a>
             <a href="/blog" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Blog</a>
             <a href="#" @click.prevent="$emit('contact')" class="text-slate-800 hover:text-red-600 font-semibold transition-colors">Contact</a>
+            <a href="#" @click.prevent="$emit('login')" class="text-slate-600 hover:text-red-600 font-semibold text-sm transition-colors border border-slate-200 hover:border-red-600 rounded-xl px-4 py-2">Member Sign In</a>
             <button
-                @click="$emit('login')"
+                @click="$emit('book')"
                 class="bg-red-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-red-700 transition-all shadow-md hover:shadow-lg transform active:scale-95"
             >
               Book Now
@@ -246,10 +247,16 @@ const testimonials = [
                     <a href="#" @click.prevent="closeMobileMenu(); $emit('contact');" class="block px-4 py-3 rounded-xl text-lg font-bold text-slate-800 hover:bg-slate-50 hover:text-red-600 transition-colors mb-4">Contact</a>
                     
                     <button 
-                        @click="handleMobileLogin" 
+                        @click="closeMobileMenu(); $emit('book');" 
                         class="w-full mt-4 bg-red-600 text-white px-6 py-4 rounded-xl font-bold text-lg hover:bg-red-700 transition-all shadow-md active:scale-95 flex justify-center items-center"
                     >
-                        Book Now
+                        Book Now (Guest / Member)
+                    </button>
+                    <button 
+                        @click="handleMobileLogin" 
+                        class="w-full mt-2 bg-slate-100 text-slate-800 px-6 py-3 rounded-xl font-bold text-sm hover:bg-slate-200 transition-all flex justify-center items-center"
+                    >
+                        Member Login
                     </button>
                 </div>
             </div>
@@ -320,7 +327,7 @@ const testimonials = [
 
            <div class="flex justify-center mt-12">
                <button 
-                  @click="$emit('login')"
+                  @click="$emit('book')"
                   class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white text-lg font-bold px-10 py-4 rounded-xl transition-all shadow-xl hover:shadow-2xl transform active:scale-95"
                >
                   Book Your Slot Now
@@ -705,7 +712,7 @@ const testimonials = [
                         Lanes available 7 days a week. Online booking takes less than 2 minutes.
                     </p>
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-6">
-                        <button @click="$emit('login')" class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-4 px-10 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
+                        <button @click="$emit('book')" class="bg-[#FF0F20] hover:bg-[#E60D1D] text-white font-bold py-4 px-10 rounded-xl shadow-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">
                             Book Your Slot Now
                         </button>
                         <button @click="$emit('contact')" class="bg-transparent border-2 border-white hover:bg-white/10 text-white font-bold py-4 px-10 rounded-xl transition-all hover:scale-105 active:scale-95 uppercase tracking-wider text-sm">

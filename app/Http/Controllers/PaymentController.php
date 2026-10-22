@@ -52,10 +52,23 @@ class PaymentController extends Controller
             return response()->json(['error' => 'booking_id or facility details required'], 422);
         }
 
+        $guestName = $request->input('guestName') ?? $request->input('playerName') ?? ($booking ? ($booking->guest_name ?: $booking->player_name) : 'Cricket Player');
+        $guestEmail = $request->input('guestEmail') ?? $request->input('email') ?? ($booking ? $booking->guest_email : null);
+        $guestPhone = $request->input('guestPhone') ?? $request->input('phone') ?? ($booking ? $booking->guest_phone : null);
+
+        if ($booking && ($guestEmail || $guestPhone || $guestName)) {
+            $booking->update([
+                'is_guest' => $booking->is_guest || empty($booking->member_id) || $booking->member_id === 'guest',
+                'guest_name' => $guestName ?: $booking->guest_name,
+                'guest_email' => $guestEmail ?: $booking->guest_email,
+                'guest_phone' => $guestPhone ?: $booking->guest_phone,
+            ]);
+        }
+
         $customer = [
-            'name' => $request->input('playerName', 'Cricket Player'),
-            'email' => $request->input('email', 'player@playcricket.co.za'),
-            'mobile' => $request->input('mobile', '0820000000'),
+            'name' => $guestName ?: 'Cricket Player',
+            'email' => $guestEmail ?: 'player@playcricket.co.za',
+            'mobile' => $guestPhone ?: '0820000000',
         ];
 
         $session = $this->peachService->createCheckoutSession(
@@ -120,7 +133,7 @@ class PaymentController extends Controller
                 ]);
 
                 $member = collect(config('appdata.members'))->firstWhere('id', $booking->member_id);
-                $email = $member['email'] ?? 'user@example.com';
+                $email = $booking->guest_email ?: ($member['email'] ?? 'player@playcricket.co.za');
                 $this->notificationService->sendBookingConfirmation($booking, $email);
             }
 
@@ -227,7 +240,7 @@ class PaymentController extends Controller
 
                 // Send confirmation notifications
                 $member = collect(config('appdata.members'))->firstWhere('id', $booking->member_id);
-                $email = $member['email'] ?? 'virat@rcb.com';
+                $email = $booking->guest_email ?: ($member['email'] ?? 'virat@rcb.com');
                 $this->notificationService->sendBookingConfirmation($booking, $email);
 
                 Log::info("Peach Payments: Booking #{$booking->id} confirmed and marked PAID.");

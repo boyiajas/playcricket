@@ -132,19 +132,69 @@ const visibleBookings = computed(() => {
       @login="handleLogin" 
       @back="currentView = 'landing'" 
       @register="currentView = 'register'"
+      @guest="currentView = 'booking'"
     />
     <Register 
       v-else-if="currentView === 'register'" 
       @register="currentView = 'login'" 
       @login="currentView = 'login'" 
       @back="currentView = 'landing'" 
+      @guest="currentView = 'booking'"
     />
     <ContactUs 
       v-else-if="currentView === 'contact'" 
       @login="currentView = 'login'" 
       @back="currentView = 'landing'" 
     />
-    <LandingPage v-else @login="currentView = 'login'" @contact="currentView = 'contact'" />
+    <div v-else-if="currentView === 'booking'" class="min-h-screen bg-slate-50 font-sans text-slate-900">
+      <!-- Guest Booking Navigation Header -->
+      <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div class="flex items-center space-x-3 sm:space-x-4">
+            <button 
+              @click="currentView = 'landing'" 
+              class="p-2 text-slate-600 hover:text-red-600 hover:bg-slate-50 rounded-lg transition-colors flex items-center gap-1.5 font-bold text-xs sm:text-sm border border-slate-200"
+            >
+              <span>←</span>
+              <span>Home</span>
+            </button>
+            <div class="flex items-center space-x-2 cursor-pointer" @click="currentView = 'landing'">
+              <img src="/logo.png" alt="PlayCricket" class="h-10 w-auto" />
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-2 sm:space-x-3">
+            <div class="hidden sm:flex items-center gap-2 bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-full text-xs font-semibold border border-emerald-200">
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              Booking as Guest (No login required)
+            </div>
+            <button 
+              @click="currentView = 'login'" 
+              class="px-3.5 py-1.5 text-xs font-bold text-slate-700 hover:text-red-600 hover:bg-slate-100 rounded-lg transition-colors border border-slate-200"
+            >
+              Member Sign In
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Booking System Content -->
+      <main class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+        <BookingSystem 
+          :initial-bookings="bookings" 
+          :members="members" 
+          member-id="guest" 
+          :is-guest="true" 
+          @login="currentView = 'login'"
+        />
+      </main>
+    </div>
+    <LandingPage 
+      v-else 
+      @login="currentView = 'login'" 
+      @contact="currentView = 'contact'" 
+      @book="currentView = 'booking'"
+    />
   </div>
   
   <div v-else class="flex bg-slate-50 min-h-screen font-sans text-slate-900 overflow-x-hidden">

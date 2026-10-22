@@ -293,4 +293,48 @@ class PeachPaymentTest extends TestCase
             'status' => 'cancelled',
         ]);
     }
+
+    public function test_guest_can_book_and_checkout_without_account(): void
+    {
+        $response = $this->postJson('/api/bookings', [
+            'isGuest' => true,
+            'guestName' => 'Graeme Smith',
+            'guestEmail' => 'graeme@cricketsa.co.za',
+            'guestPhone' => '+27821234567',
+            'facility' => 'Lane 1 Hire',
+            'date' => '2026-11-05',
+            'startTime' => '15:00',
+            'durationHours' => 2,
+            'payNow' => true,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'message' => 'Booking created successfully',
+            ]);
+
+        $this->assertDatabaseHas('bookings', [
+            'member_id' => 'guest',
+            'is_guest' => true,
+            'guest_name' => 'Graeme Smith',
+            'guest_email' => 'graeme@cricketsa.co.za',
+            'guest_phone' => '+27821234567',
+            'rate' => 350.00,
+            'amount' => 700.00,
+            'status' => 'PENDING',
+            'payment_status' => 'UNPAID',
+        ]);
+
+        $data = $response->json();
+        $this->assertNotEmpty($data['peach_checkout']['checkout_id']);
+        $this->assertNotEmpty($data['peach_checkout']['redirect_url']);
+        $this->assertEquals(700.00, $data['peach_checkout']['amount']);
+
+        $this->assertDatabaseHas('payments', [
+            'amount' => 700.00,
+            'currency' => 'ZAR',
+            'status' => 'pending',
+            'gateway' => 'peach_payments',
+        ]);
+    }
 }

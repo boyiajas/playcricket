@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { Role } from '../types';
 
-const emit = defineEmits(['login', 'back', 'register']);
+const emit = defineEmits(['login', 'back', 'register', 'guest']);
 
 const email = ref('');
 const password = ref('');
@@ -108,11 +108,22 @@ const handleCustomLogin = () => {
         </div>
       </form>
 
-      <div class="text-center mt-4">
+        <div class="text-center mt-4">
             <p class="text-sm text-slate-600">
                 Don't have an account? 
                 <button @click="emit('register')" class="text-emerald-600 font-bold hover:underline">Register</button>
             </p>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500 mb-2 font-medium">Just want to book a lane or session?</p>
+            <button 
+              type="button" 
+              @click="emit('guest')" 
+              class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 border border-slate-200"
+            >
+              <span>🏏</span> Continue as Guest (No Login Required)
+            </button>
         </div>
       </div>
     </div>

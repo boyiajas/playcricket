@@ -1,5 +1,5 @@
 <script setup>
-const emit = defineEmits(['register', 'login', 'back']);
+const emit = defineEmits(['register', 'login', 'back', 'guest']);
 </script>
 
 <template>
@@ -73,6 +73,17 @@ const emit = defineEmits(['register', 'login', 'back']);
                 Already have an account? 
                 <button @click="emit('login')" class="text-emerald-600 font-bold hover:underline">Login</button>
             </p>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-100 text-center">
+            <p class="text-xs text-slate-500 mb-2 font-medium">Want to book immediately?</p>
+            <button 
+              type="button" 
+              @click="emit('guest')" 
+              class="w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-2 border border-slate-200"
+            >
+              <span>🏏</span> Continue as Guest (No Account Required)
+            </button>
         </div>
       </div>
     </div>

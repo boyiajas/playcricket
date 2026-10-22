@@ -12,12 +12,28 @@ const props = defineProps({
   },
   memberId: {
     type: String,
-    default: 'm1',
+    default: 'guest',
   },
   members: {
     type: Array,
     default: () => [],
   },
+  isGuest: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const emit = defineEmits(['login']);
+
+const isGuestUser = computed(() => {
+  return props.isGuest || !props.memberId || props.memberId === 'guest';
+});
+
+const guestDetails = ref({
+  name: typeof localStorage !== 'undefined' ? localStorage.getItem('playcricket_guest_name') || '' : '',
+  email: typeof localStorage !== 'undefined' ? localStorage.getItem('playcricket_guest_email') || '' : '',
+  phone: typeof localStorage !== 'undefined' ? localStorage.getItem('playcricket_guest_phone') || '' : '',
 });
 
 const activeView = ref('calendar');
@@ -147,6 +163,24 @@ const submitPaymentForm = (url, data) => {
 const handleBook = async (payNow = false) => {
   if (cart.value.length === 0) return;
 
+  // Validate guest contact details if booking as guest
+  if (isGuestUser.value) {
+    if (!guestDetails.value.name.trim() || !guestDetails.value.email.trim()) {
+      alert('Please provide your Full Name and Email address so we can send your booking confirmation and receipt.');
+      return;
+    }
+    // Save to localStorage for convenience
+    try {
+      localStorage.setItem('playcricket_guest_name', guestDetails.value.name.trim());
+      localStorage.setItem('playcricket_guest_email', guestDetails.value.email.trim());
+      if (guestDetails.value.phone) {
+        localStorage.setItem('playcricket_guest_phone', guestDetails.value.phone.trim());
+      }
+    } catch (e) {
+      console.warn('Could not save guest details to localStorage', e);
+    }
+  }
+
   try {
     const results = [];
     for (const item of cart.value) {
@@ -155,7 +189,11 @@ const handleBook = async (payNow = false) => {
       const amount = item.amount || (rate * duration);
 
       const bookingData = {
-        memberId: props.memberId || 'm1',
+        memberId: isGuestUser.value ? 'guest' : (props.memberId || 'm1'),
+        isGuest: isGuestUser.value,
+        guestName: isGuestUser.value ? guestDetails.value.name.trim() : null,
+        guestEmail: isGuestUser.value ? guestDetails.value.email.trim() : null,
+        guestPhone: isGuestUser.value ? guestDetails.value.phone.trim() : null,
         facility: item.facility,
         date: item.date,
         startTime: item.time,
@@ -163,7 +201,7 @@ const handleBook = async (payNow = false) => {
         rate: rate,
         amount: amount,
         ageGroup: item.ageGroup,
-        playerName: item.playerName,
+        playerName: item.playerName || (isGuestUser.value ? guestDetails.value.name.trim() : ''),
         payNow: payNow
       };
       
@@ -174,35 +212,51 @@ const handleBook = async (payNow = false) => {
       }
     }
 
-    const paymentItem = results.find(r => r.payment_data);
+    const paymentItem = results.find(r => r.payment_data || r.peach_checkout);
     
     if (payNow && paymentItem) {
-      if (paymentItem.payment_data.redirect_url) {
-        window.location.href = paymentItem.payment_data.redirect_url;
-      } else if (paymentItem.payment_data.url && paymentItem.payment_data.data) {
+      const redirectUrl = paymentItem.peach_checkout?.redirect_url 
+        || paymentItem.payment_data?.redirect_url 
+        || paymentItem.payment_data?.url;
+
+      if (redirectUrl && (redirectUrl.includes('peach') || !paymentItem.payment_data?.data)) {
+        window.location.href = redirectUrl;
+      } else if (paymentItem.payment_data?.url && paymentItem.payment_data?.data) {
         submitPaymentForm(paymentItem.payment_data.url, paymentItem.payment_data.data);
-      } else if (paymentItem.payment_data.url) {
-        window.location.href = paymentItem.payment_data.url;
+      } else if (redirectUrl) {
+        window.location.href = redirectUrl;
       }
     } else {
-      alert('All bookings reserved successfully!');
+      alert('All bookings reserved successfully! Confirmation has been sent to ' + (isGuestUser.value ? guestDetails.value.email : 'your email') + '.');
       cart.value = [];
+      showModal.value = false;
     }
 
   } catch (error) {
     console.error('Booking failed', error);
-    alert('Failed to process some bookings.');
+    alert('Failed to process some bookings. Please check your connection and try again.');
   }
 };
 
 const myBookings = computed(() => {
+  if (isGuestUser.value) {
+    const email = (guestDetails.value.email || '').toLowerCase().trim();
+    return bookings.value.filter((b) => {
+      const bMember = (b.memberId || b.member_id || '').toLowerCase();
+      const bGuest = (b.guest_email || b.guestEmail || '').toLowerCase();
+      return bMember === 'guest' || (email && bGuest === email);
+    });
+  }
   return bookings.value.filter((b) => (b.memberId || b.member_id) === props.memberId);
 });
 
 const pastBookings = computed(() =>
   bookings.value.filter((b) => {
     const bDate = new Date(b.date);
-    return (b.memberId === props.memberId || b.member_id === props.memberId) && bDate < new Date();
+    const matchesUser = isGuestUser.value
+      ? ((b.memberId || b.member_id) === 'guest' || (guestDetails.value.email && (b.guest_email || b.guestEmail) === guestDetails.value.email))
+      : (b.memberId === props.memberId || b.member_id === props.memberId);
+    return matchesUser && bDate < new Date();
   })
 );
 
@@ -438,6 +492,27 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4 md:space-y-6">
+    <!-- Guest Welcome & Status Banner -->
+    <div
+      v-if="isGuestUser"
+      class="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm"
+    >
+      <div class="flex items-center gap-3">
+        <span class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold">👤</span>
+        <div>
+          <h4 class="text-sm font-bold text-slate-800">Booking as Guest (No Account Required)</h4>
+          <p class="text-xs text-slate-600">Select any date & time slot to book your lane or coaching session. Creating an account is completely optional.</p>
+        </div>
+      </div>
+      <button 
+        type="button" 
+        @click="emit('login')" 
+        class="inline-flex items-center text-xs font-semibold text-emerald-700 hover:text-emerald-800 bg-white border border-emerald-300 px-3 py-1.5 rounded-lg shadow-sm hover:bg-emerald-50 transition-colors whitespace-nowrap"
+      >
+        Already a member? Sign in
+      </button>
+    </div>
+
     <div class="flex flex-col xl:flex-row justify-between items-center gap-4">
       <div class="flex w-full md:w-auto bg-white p-1 rounded-lg border border-slate-200 shadow-sm overflow-x-auto scrollbar-hide">
         <button
@@ -538,11 +613,53 @@ onMounted(() => {
                     </div>
                 </div>
             </div>
+
+            <!-- Guest Contact Details for Booking & Confirmation -->
+            <div v-if="isGuestUser" class="mt-4 pt-3 border-t border-slate-200 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                  <span class="text-emerald-600">✉️</span> Guest Contact Information
+                </span>
+                <span class="text-[10px] text-slate-500">For booking receipt & confirmations</span>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div>
+                  <label class="block font-medium text-slate-600 mb-0.5">Full Name <span class="text-rose-500">*</span></label>
+                  <input
+                    v-model="guestDetails.name"
+                    type="text"
+                    required
+                    placeholder="e.g. John Smith"
+                    class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-xs"
+                  />
+                </div>
+                <div>
+                  <label class="block font-medium text-slate-600 mb-0.5">Phone Number</label>
+                  <input
+                    v-model="guestDetails.phone"
+                    type="tel"
+                    placeholder="e.g. 082 123 4567"
+                    class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-xs"
+                  />
+                </div>
+              </div>
+              <div>
+                <label class="block font-medium text-slate-600 mb-0.5 text-xs">Email Address <span class="text-rose-500">*</span></label>
+                <input
+                  v-model="guestDetails.email"
+                  type="email"
+                  required
+                  placeholder="e.g. john@example.com"
+                  class="w-full px-2.5 py-1.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none text-xs"
+                />
+              </div>
+            </div>
+
             <div class="mt-3 grid grid-cols-2 gap-2 pt-3 border-t border-slate-200">
-                 <button class="px-3 py-1.5 border border-emerald-600 text-emerald-700 rounded text-xs font-bold hover:bg-emerald-50" @click="handleBook(false)">
+                 <button class="px-3 py-2 border border-emerald-600 text-emerald-700 rounded-lg text-xs font-bold hover:bg-emerald-50 transition-colors" @click="handleBook(false)">
                     Reserve (R{{ cartTotal }}.00)
                  </button>
-                 <button class="px-3 py-1.5 bg-emerald-600 text-white rounded text-xs font-bold hover:bg-emerald-700" @click="handleBook(true)">
+                 <button class="px-3 py-2 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700 transition-colors shadow-sm" @click="handleBook(true)">
                     Pay Now (R{{ cartTotal }}.00)
                  </button>
             </div>
