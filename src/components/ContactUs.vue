@@ -171,27 +171,38 @@ const submitContact = () => {
 
                         <!-- Phone Card -->
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 flex items-start gap-5 shadow-sm hover:shadow-md transition-shadow group">
-                            <div class="bg-[#FF0F20]/10 p-4 rounded-2xl group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0">
+                            <div class="bg-[#FF0F20]/10 p-4 rounded-2xl group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">
                                 <span class="text-2xl">📞</span>
                             </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-slate-900 mb-1">Give Us A Call</h3>
-                                <a href="tel:0618844217" class="text-slate-500 font-medium hover:text-[#FF0F20] transition-colors inline-block mt-1">
-                                    061 884 4217
-                                </a>
+                            <div class="flex-1">
+                                <h3 class="text-lg font-bold text-slate-900 mb-2">Give Us A Call</h3>
+                                <div class="space-y-2.5 mt-1">
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1 pb-2 border-b border-slate-50">
+                                        <span class="text-slate-700 font-medium">Resmun Moonsamy &ndash; <span class="text-slate-500 text-xs">Owner</span></span>
+                                        <a href="tel:0835446409" class="text-slate-600 font-bold hover:text-[#FF0F20] transition-colors whitespace-nowrap">083 544 6409</a>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1 pb-2 border-b border-slate-50">
+                                        <span class="text-slate-700 font-medium">Fabian Lazarus &ndash; <span class="text-slate-500 text-xs">Pro Coach</span></span>
+                                        <a href="tel:0796237185" class="text-slate-600 font-bold hover:text-[#FF0F20] transition-colors whitespace-nowrap">079 623 7185</a>
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm gap-1">
+                                        <span class="text-slate-700 font-medium">Lazarus Mokoena &ndash; <span class="text-slate-500 text-xs">Coach</span></span>
+                                        <a href="tel:0618844217" class="text-slate-600 font-bold hover:text-[#FF0F20] transition-colors whitespace-nowrap">061 884 4217</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Email Card -->
                         <div class="bg-white border border-slate-100 rounded-3xl p-6 flex items-start gap-5 shadow-sm hover:shadow-md transition-shadow group">
-                            <div class="bg-[#FF0F20]/10 p-4 rounded-2xl group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0">
+                            <div class="bg-[#FF0F20]/10 p-4 rounded-2xl group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">
                                 <span class="text-2xl">📧</span>
                             </div>
-                            <div>
+                            <div class="flex-1">
                                 <h3 class="text-lg font-bold text-slate-900 mb-1">Email Us Directly</h3>
-                                <div class="flex flex-col gap-1 mt-1">
-                                    <a href="mailto:info@playcricket.co.za" class="text-slate-500 font-medium hover:text-[#FF0F20] transition-colors">info@playcricket.co.za</a>
-                                    <a href="mailto:lazarus@playcricket.co.za" class="text-slate-500 font-medium hover:text-[#FF0F20] transition-colors">lazarus@playcricket.co.za</a>
+                                <div class="flex flex-col gap-1.5 mt-2">
+                                    <a href="mailto:info@playcricket.co.za" class="text-slate-600 font-medium hover:text-[#FF0F20] transition-colors text-sm">info@playcricket.co.za</a>
+                                    <a href="mailto:resmun@playcricket.co.za" class="text-slate-600 font-medium hover:text-[#FF0F20] transition-colors text-sm">resmun@playcricket.co.za</a>
                                 </div>
                             </div>
                         </div>
@@ -363,15 +374,19 @@ const submitContact = () => {
                             <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📍</span>
                             <span class="text-slate-500 text-sm font-medium leading-relaxed">Unit 8, 9 Arbied Street,<br/>Strijdom Park, Randburg, 2194</span>
                         </div>
-                        <div class="flex items-center gap-4 group">
-                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0">📞</span>
-                            <a href="tel:0618844217" class="text-slate-500 hover:text-[#FF0F20] text-sm font-medium transition-colors">061 884 4217</a>
+                        <div class="flex items-start gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📞</span>
+                            <div class="flex flex-col text-slate-500 text-sm font-medium gap-1">
+                                <a href="tel:0835446409" class="hover:text-[#FF0F20] transition-colors"><span class="text-slate-700 font-semibold">Resmun (Owner):</span> 083 544 6409</a>
+                                <a href="tel:0796237185" class="hover:text-[#FF0F20] transition-colors"><span class="text-slate-700 font-semibold">Fabian (Pro Coach):</span> 079 623 7185</a>
+                                <a href="tel:0618844217" class="hover:text-[#FF0F20] transition-colors"><span class="text-slate-700 font-semibold">Lazarus (Coach):</span> 061 884 4217</a>
+                            </div>
                         </div>
                         <div class="flex items-start gap-4 group">
                             <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📧</span>
                             <div class="flex flex-col text-slate-500 text-sm font-medium gap-1">
                                 <a href="mailto:info@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">info@playcricket.co.za</a>
-                                <a href="mailto:lazarus@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">lazarus@playcricket.co.za</a>
+                                <a href="mailto:resmun@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">resmun@playcricket.co.za</a>
                             </div>
                         </div>
                         <div class="flex items-center gap-4 group">

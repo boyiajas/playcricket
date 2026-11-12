@@ -781,15 +781,19 @@ const testimonials = [
                             <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📍</span>
                             <span class="text-slate-500 text-sm font-medium leading-relaxed">Unit 8, 9 Arbied Street,<br/>Strijdom Park, Randburg, 2194</span>
                         </div>
-                        <div class="flex items-center gap-4 group">
-                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0">📞</span>
-                            <a href="tel:0618844217" class="text-slate-500 hover:text-[#FF0F20] text-sm font-medium transition-colors">061 884 4217</a>
+                        <div class="flex items-start gap-4 group">
+                            <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📞</span>
+                            <div class="flex flex-col text-slate-500 text-sm font-medium gap-1">
+                                <a href="tel:0835446409" class="hover:text-[#FF0F20] transition-colors"><span class="text-slate-700 font-semibold">Resmun (Owner):</span> 083 544 6409</a>
+                                <a href="tel:0796237185" class="hover:text-[#FF0F20] transition-colors"><span class="text-slate-700 font-semibold">Fabian (Pro Coach):</span> 079 623 7185</a>
+                                <a href="tel:0618844217" class="hover:text-[#FF0F20] transition-colors"><span class="text-slate-700 font-semibold">Lazarus (Coach):</span> 061 884 4217</a>
+                            </div>
                         </div>
                         <div class="flex items-start gap-4 group">
                             <span class="text-[#FF0F20] bg-[#FF0F20]/10 p-2 rounded-lg group-hover:bg-[#FF0F20] group-hover:text-white transition-colors shrink-0 mt-0.5">📧</span>
                             <div class="flex flex-col text-slate-500 text-sm font-medium gap-1">
                                 <a href="mailto:info@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">info@playcricket.co.za</a>
-                                <a href="mailto:lazarus@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">lazarus@playcricket.co.za</a>
+                                <a href="mailto:resmun@playcricket.co.za" class="hover:text-[#FF0F20] transition-colors">resmun@playcricket.co.za</a>
                             </div>
                         </div>
                         <div class="flex items-center gap-4 group">
