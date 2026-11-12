@@ -469,24 +469,21 @@ const testimonials = [
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-0">
-                <!-- Coach 1: Placeholder -->
-                <div class="bg-slate-50/30 rounded-[3rem] border-2 border-dashed border-slate-200 p-0 shadow-none hover:shadow-lg transition-all duration-500 flex flex-col items-center opacity-80 backdrop-blur-sm min-h-[400px]">
-                    <div class="pt-16 pb-4 text-center">
-                        <div class="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6 border border-slate-200 text-slate-300 shadow-inner">
-                            <svg class="w-8 h-8 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                        </div>
-                        <h3 class="text-2xl font-bold text-slate-400 mb-2">More Pros</h3>
-                        <p class="text-slate-300 font-extrabold text-xs uppercase tracking-widest">Coming Soon</p>
+                <!-- Coach 1: Coach Fabian Lazarus -->
+                <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
+                    <div class="pt-10 pb-4 text-center">
+                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Fabian Lazarus</h3>
+                        <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Pro Coach</p>
                     </div>
-                    <div class="w-full mt-auto h-48 flex justify-center items-end px-8 pb-8">
-                        <div class="w-full h-full bg-gradient-to-t from-slate-100 to-transparent rounded-t-[3rem] opacity-50 border-t-2 border-white/60"></div>
+                    <div class="w-full mt-auto flex justify-center h-80">
+                        <img src="/images/coach-fabian.jpg" class="w-full h-full object-cover object-top transform group-hover:scale-110 transition-transform duration-700" alt="Coach Fabian Lazarus">
                     </div>
                 </div>
 
                 <!-- Coach 2: Coach Lazarus -->
                 <div class="bg-slate-50/50 rounded-[3rem] border border-slate-100 p-0 shadow-sm hover:shadow-2xl transition-all duration-500 group overflow-hidden flex flex-col items-center">
                     <div class="pt-10 pb-4 text-center">
-                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Lazarus Mokeona</h3>
+                        <h3 class="text-3xl font-bold text-[#0f172a] mb-1">Lazarus Mokoena</h3>
                         <p class="text-red-500 font-extrabold text-xs uppercase tracking-widest">Head Coach</p>
                     </div>
                     <div class="w-full mt-auto flex justify-center h-80">
